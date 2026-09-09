@@ -5,30 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>StudyDeck - Flashcards Studio</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" referrerpolicy="no-referrer" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-main: #f7f8fa;
+      --bg-main: #fbfbfb;
       --sidebar-bg: #ffffff;
       --card-surface: #ffffff;
-      --accent-blue: #2563eb;
-      --accent-blue-hover: #1d4ed8;
-      --text-dark: #101828;
-      --text-muted: #667085;
-      --border-subtle: #e4e7ec;
-      --tag-bg: #f2f4f7;
-      --tag-text: #344054;
+      --accent-purple: #8a70d6;
+      --accent-purple-hover: #7859cc;
+      --accent-purple-light: #e9e3ff;
+      --text-dark: #424040;
+      --text-muted: #8a8798;
+      --border-subtle: #ececf5;
+      --tag-bg: #f4f2fb;
+      --tag-text: #6b5b95;
       --radius-xl: 24px;
-      --radius-lg: 16px;
-      --radius-md: 10px;
-      --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
-      --shadow-card: 0 20px 40px -12px rgba(16, 24, 40, 0.18);
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --shadow-sm: 0 2px 10px rgba(66, 64, 64, 0.06);
+      --shadow-card: 0 20px 40px -12px rgba(138, 112, 214, 0.28);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+      font-family: 'Lato', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
     body {
@@ -70,7 +74,7 @@
     .login-hint {
       margin-top: 18px;
       font-size: 0.78rem;
-      color: #98a2b3;
+      color: #b3b0bd;
     }
 
     /* ============ APP SHELL ============ */
@@ -105,20 +109,20 @@
     .brand-icon {
       width: 44px;
       height: 44px;
-      background: var(--accent-blue);
+      background: var(--accent-purple);
       border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #fff;
       font-size: 1.2rem;
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+      box-shadow: 0 4px 12px rgba(138, 112, 214, 0.45);
       flex-shrink: 0;
     }
 
     .brand-title {
       font-size: 1.25rem;
-      font-weight: 800;
+      font-weight: 700;
       color: var(--text-dark);
       letter-spacing: -0.5px;
     }
@@ -132,10 +136,10 @@
     .nav-btn {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
       width: 100%;
-      padding: 12px 16px;
-      border-radius: var(--radius-md);
+      padding: 8px 10px;
+      border-radius: 14px;
       border: none;
       background: transparent;
       color: var(--text-muted);
@@ -147,19 +151,31 @@
     }
 
     .nav-btn i {
-      width: 18px;
-      text-align: center;
-      font-size: 0.95rem;
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      background: #f5f4fb;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
     }
 
     .nav-btn:hover {
-      background: #f7f8fa;
       color: var(--text-dark);
     }
 
     .nav-btn.active {
-      background: #eef2ff;
-      color: var(--accent-blue);
+      background: var(--accent-purple-light);
+      color: var(--accent-purple);
+    }
+
+    .nav-btn.active i {
+      background: #fff;
+      color: var(--accent-purple);
     }
 
     /* Carpetas en la barra lateral */
@@ -175,10 +191,10 @@
 
     .sidebar-section-label {
       font-size: 0.7rem;
-      font-weight: 800;
+      font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.6px;
-      color: #98a2b3;
+      color: #b3b0bd;
       padding: 18px 12px 8px;
       flex-shrink: 0;
     }
@@ -194,10 +210,10 @@
       align-items: center;
       gap: 10px;
       padding: 9px 12px;
-      border-radius: 10px;
+      border-radius: 12px;
       cursor: pointer;
       font-size: 0.86rem;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--text-muted);
       transition: background 0.15s ease;
       border: none;
@@ -207,11 +223,11 @@
     }
 
     .folder-item:hover {
-      background: #f7f8fa;
+      background: #f7f6fb;
     }
 
     .folder-item.active {
-      background: #eef2ff;
+      background: var(--accent-purple-light);
       color: var(--text-dark);
     }
 
@@ -234,7 +250,7 @@
       font-size: 0.7rem;
       font-weight: 700;
       color: var(--text-muted);
-      background: #f2f4f7;
+      background: #f4f2fb;
       padding: 2px 7px;
       border-radius: 20px;
       flex-shrink: 0;
@@ -251,7 +267,7 @@
       width: 100%;
       text-align: left;
       padding: 9px 12px;
-      border-radius: 10px;
+      border-radius: 12px;
       border: 1.5px dashed var(--border-subtle);
       background: transparent;
       color: var(--text-muted);
@@ -264,13 +280,13 @@
     }
 
     .btn-new-folder-inline:hover {
-      border-color: var(--accent-blue);
-      color: var(--accent-blue);
-      background: #f5f8ff;
+      border-color: var(--accent-purple);
+      color: var(--accent-purple);
+      background: var(--accent-purple-light);
     }
 
     .sidebar-stats {
-      background: #f7f8fa;
+      background: #f7f6fb;
       padding: 14px 16px;
       border-radius: var(--radius-md);
       display: flex;
@@ -285,6 +301,7 @@
     .sidebar-stats strong {
       color: var(--text-dark);
       font-size: 1rem;
+      font-weight: 700;
     }
 
     /* Área de Contenido Principal */
@@ -292,8 +309,57 @@
       flex: 1;
       height: 100vh;
       overflow-y: auto;
-      padding: 40px 48px;
+      padding: 32px 48px 40px;
       position: relative;
+    }
+
+    /* Barra superior con perfil */
+    .topbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 10px;
+    }
+
+    .profile-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      padding: 6px 8px 6px 6px;
+      border-radius: 40px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .profile-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--accent-purple);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+      margin-right: 4px;
+    }
+
+    .profile-info strong {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: capitalize;
+    }
+
+    .profile-info span {
+      font-size: 0.7rem;
+      color: var(--text-muted);
     }
 
     .view-panel {
@@ -321,7 +387,7 @@
 
     .panel-title h2 {
       font-size: 2rem;
-      font-weight: 800;
+      font-weight: 700;
       letter-spacing: -0.5px;
       margin-bottom: 4px;
     }
@@ -333,7 +399,7 @@
 
     /* Botones primarios */
     .btn-action {
-      background: var(--accent-blue);
+      background: var(--accent-purple);
       color: #fff;
       border: none;
       padding: 12px 22px;
@@ -345,11 +411,11 @@
       align-items: center;
       gap: 10px;
       transition: all 0.2s ease;
-      box-shadow: 0 6px 14px -3px rgba(37, 99, 235, 0.35);
+      box-shadow: 0 6px 14px -3px rgba(138, 112, 214, 0.45);
     }
 
     .btn-action:hover {
-      background: var(--accent-blue-hover);
+      background: var(--accent-purple-hover);
       transform: translateY(-1px);
     }
 
@@ -361,7 +427,7 @@
     }
 
     .btn-action.secondary:hover {
-      background: #f8fafc;
+      background: #f9f8fc;
     }
 
     /* ============ HOME ============ */
@@ -386,11 +452,11 @@
 
     .home-stat-card i {
       font-size: 1.2rem;
-      color: var(--accent-blue);
+      color: var(--accent-purple);
       width: 44px;
       height: 44px;
       border-radius: 12px;
-      background: #eef2ff;
+      background: var(--accent-purple-light);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -400,14 +466,14 @@
     .home-stat-card strong {
       display: block;
       font-size: 1.5rem;
-      font-weight: 800;
+      font-weight: 700;
       line-height: 1.15;
     }
 
     .home-stat-card span {
       font-size: 0.8rem;
       color: var(--text-muted);
-      font-weight: 600;
+      font-weight: 700;
     }
 
     .home-actions-row {
@@ -419,7 +485,7 @@
 
     .home-section-title {
       font-size: 1.05rem;
-      font-weight: 800;
+      font-weight: 700;
       margin-bottom: 14px;
     }
 
@@ -430,40 +496,60 @@
     }
 
     .home-folder-card {
-      background: #fff;
       border-radius: var(--radius-lg);
-      padding: 18px 20px;
-      box-shadow: var(--shadow-sm);
-      border-left: 5px solid transparent;
+      padding: 20px;
       cursor: pointer;
       transition: all 0.2s ease;
-      border-top: 1px solid var(--border-subtle);
-      border-right: 1px solid var(--border-subtle);
-      border-bottom: 1px solid var(--border-subtle);
+      position: relative;
+      overflow: hidden;
+      min-height: 128px;
+      border: none;
+      text-align: left;
     }
 
     .home-folder-card:hover {
       transform: translateY(-3px);
-      box-shadow: 0 12px 24px rgba(16, 24, 40, 0.08);
+      box-shadow: 0 14px 26px rgba(66, 64, 64, 0.14);
     }
 
-    .home-folder-card .folder-dot {
-      display: inline-block;
-      margin-bottom: 10px;
-      width: 12px;
-      height: 12px;
+    .home-folder-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.6);
+      font-size: 1.05rem;
+      margin-bottom: 26px;
     }
 
     .home-folder-name {
       font-weight: 700;
-      font-size: 0.96rem;
+      font-size: 0.98rem;
       margin-bottom: 4px;
+      color: var(--text-dark);
     }
 
     .home-folder-count {
       font-size: 0.8rem;
-      color: var(--text-muted);
-      font-weight: 600;
+      color: var(--text-dark);
+      opacity: 0.65;
+      font-weight: 700;
+    }
+
+    .home-folder-arrow {
+      position: absolute;
+      right: 16px;
+      bottom: 16px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
     }
 
     /* Filtros y Barra de Acciones de Tarjetas */
@@ -492,7 +578,7 @@
       padding: 8px 14px;
       border-radius: 8px;
       color: var(--text-dark);
-      font-weight: 600;
+      font-weight: 700;
       outline: none;
       cursor: pointer;
     }
@@ -501,7 +587,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      font-weight: 600;
+      font-weight: 700;
       font-size: 0.9rem;
       cursor: pointer;
       user-select: none;
@@ -510,7 +596,7 @@
     .select-all-label input[type="checkbox"] {
       width: 17px;
       height: 17px;
-      accent-color: var(--accent-blue);
+      accent-color: var(--accent-purple);
       cursor: pointer;
     }
 
@@ -539,11 +625,11 @@
 
     .card-item:hover {
       transform: translateY(-3px);
-      box-shadow: 0 12px 24px rgba(16, 24, 40, 0.08);
+      box-shadow: 0 14px 26px rgba(66, 64, 64, 0.1);
     }
 
     .card-item.selected {
-      box-shadow: 0 0 0 2px var(--accent-blue), var(--shadow-sm);
+      box-shadow: 0 0 0 2px var(--accent-purple), var(--shadow-sm);
     }
 
     .card-top {
@@ -556,7 +642,7 @@
     .card-checkbox {
       width: 19px;
       height: 19px;
-      accent-color: var(--accent-blue);
+      accent-color: var(--accent-purple);
       cursor: pointer;
     }
 
@@ -600,16 +686,16 @@
       justify-content: flex-end;
       margin-top: 14px;
       padding-top: 10px;
-      border-top: 1px solid #f1f5f9;
+      border-top: 1px solid #f4f2fb;
     }
 
     .btn-delete-card {
       background: none;
       border: none;
-      color: #94a3b8;
+      color: #b3b0bd;
       cursor: pointer;
       font-size: 0.85rem;
-      font-weight: 600;
+      font-weight: 700;
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -624,7 +710,7 @@
       text-align: center;
       padding: 60px 20px;
       color: var(--text-muted);
-      font-weight: 600;
+      font-weight: 700;
       background: #fff;
       border-radius: var(--radius-lg);
       border: 1.5px dashed var(--border-subtle);
@@ -661,7 +747,7 @@
     .study-progress-bar {
       flex: 1;
       height: 8px;
-      background: #e2e8f0;
+      background: #ececf5;
       border-radius: 20px;
       overflow: hidden;
     }
@@ -669,7 +755,7 @@
     .study-progress-fill {
       height: 100%;
       width: 0%;
-      background: var(--accent-blue);
+      background: var(--accent-purple);
       border-radius: 20px;
       transition: width 0.3s, background 0.3s;
     }
@@ -688,7 +774,7 @@
       position: relative;
       transform-style: preserve-3d;
       transition: transform 0.6s cubic-bezier(0.34, 1.3, 0.64, 1);
-      --folder-accent: var(--accent-blue);
+      --folder-accent: var(--accent-purple);
     }
 
     .flashcard-3d.is-flipped {
@@ -713,14 +799,14 @@
 
     .flashcard-face.back {
       transform: rotateY(180deg);
-      background: #fbfdff;
+      background: #fdfcff;
     }
 
     .study-label {
       display: inline-block;
       align-self: center;
       font-size: 0.8rem;
-      font-weight: 800;
+      font-weight: 700;
       text-transform: uppercase;
       padding: 6px 16px;
       border-radius: 30px;
@@ -728,8 +814,8 @@
     }
 
     .flashcard-face.front .study-label {
-      background: #e0f2fe;
-      color: #0369a1;
+      background: var(--accent-purple-light);
+      color: var(--accent-purple);
     }
 
     .flashcard-face.back .study-label {
@@ -739,7 +825,7 @@
 
     .study-content-title {
       font-size: 2.1rem;
-      font-weight: 800;
+      font-weight: 700;
       color: var(--text-dark);
       line-height: 1.3;
       margin: auto 0;
@@ -781,7 +867,7 @@
     }
 
     .round-ctrl-btn:hover:not(:disabled) {
-      background: #f8fafc;
+      background: #f9f8fc;
       transform: scale(1.05);
     }
 
@@ -794,7 +880,7 @@
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 45, 68, 0.4);
+      background: rgba(66, 64, 64, 0.35);
       backdrop-filter: blur(6px);
       display: none;
       align-items: center;
@@ -813,14 +899,14 @@
       max-width: 520px;
       border-radius: var(--radius-xl);
       padding: 32px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+      box-shadow: 0 20px 40px rgba(66, 64, 64, 0.2);
       max-height: 90vh;
       overflow-y: auto;
     }
 
     .modal-box h3 {
       font-size: 1.4rem;
-      font-weight: 800;
+      font-weight: 700;
       margin-bottom: 6px;
       display: flex;
       align-items: center;
@@ -828,7 +914,7 @@
     }
 
     .modal-box h3 i {
-      color: var(--accent-blue);
+      color: var(--accent-purple);
       font-size: 1.15rem;
     }
 
@@ -854,9 +940,9 @@
     .form-group input, .form-group textarea, .form-group select {
       width: 100%;
       padding: 12px;
-      border: 1.5px solid #e2e8f0;
+      border: 1.5px solid #ececf5;
       border-radius: var(--radius-md);
-      background: #f8fafc;
+      background: #faf9fc;
       font-size: 0.95rem;
       outline: none;
       cursor: auto;
@@ -867,7 +953,7 @@
     }
 
     .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
-      border-color: var(--accent-blue);
+      border-color: var(--accent-purple);
       background: #fff;
     }
 
@@ -896,7 +982,7 @@
       align-items: center;
       gap: 12px;
       padding: 10px 4px;
-      border-bottom: 1px solid #f1f5f9;
+      border-bottom: 1px solid #f4f2fb;
     }
 
     .folder-manage-row:last-child {
@@ -929,7 +1015,7 @@
       background: none;
       border: none;
       cursor: pointer;
-      color: #94a3b8;
+      color: #b3b0bd;
       font-size: 0.95rem;
       padding: 6px;
       border-radius: 6px;
@@ -940,8 +1026,8 @@
     }
 
     .icon-btn:hover {
-      background: #f1f5f9;
-      color: var(--text-dark);
+      background: var(--accent-purple-light);
+      color: var(--accent-purple);
     }
 
     .icon-btn.danger:hover {
@@ -951,13 +1037,13 @@
 
     .folder-form-divider {
       height: 1px;
-      background: #eef2f6;
+      background: #f4f2fb;
       margin: 18px 0;
     }
 
     .folder-form-title {
       font-size: 0.95rem;
-      font-weight: 800;
+      font-weight: 700;
       margin-bottom: 14px;
       display: flex;
       align-items: center;
@@ -967,7 +1053,7 @@
     .folder-form-title .link-btn {
       font-size: 0.78rem;
       font-weight: 700;
-      color: var(--accent-blue);
+      color: var(--accent-purple);
       background: none;
       border: none;
       cursor: pointer;
@@ -1138,6 +1224,17 @@
     <!-- CONTENIDO PRINCIPAL -->
     <main class="main-wrapper">
 
+      <div class="topbar">
+        <div class="profile-chip">
+          <div class="profile-avatar" id="profileAvatar">U</div>
+          <div class="profile-info">
+            <strong id="profileName">Usuario</strong>
+            <span id="profileEmail">—</span>
+          </div>
+          <button class="icon-btn" title="Cerrar sesión" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i></button>
+        </div>
+      </div>
+
       <!-- VISTA 0: INICIO -->
       <section id="viewHome" class="view-panel active">
         <div class="panel-header">
@@ -1210,7 +1307,7 @@
             </label>
           </div>
           <div class="toolbar-right">
-            <label for="tagFilter" style="font-size:0.9rem; font-weight:600; color:var(--text-muted)">Etiqueta:</label>
+            <label for="tagFilter" style="font-size:0.9rem; font-weight:700; color:var(--text-muted)">Etiqueta:</label>
             <select class="filter-select" id="tagFilter" onchange="filterCards()">
               <option value="ALL">Todas las etiquetas</option>
             </select>
@@ -1344,7 +1441,7 @@
 
   <script>
     // Paleta de colores disponible para carpetas
-    const FOLDER_COLOR_PALETTE = ['#2563eb', '#16a34a', '#d97706', '#dc2626', '#7c3aed', '#db2777', '#0d9488', '#4f46e5', '#65a30d', '#71717a'];
+    const FOLDER_COLOR_PALETTE = ['#8a70d6', '#16a34a', '#d97706', '#dc2626', '#2563eb', '#db2777', '#0d9488', '#4f46e5', '#65a30d', '#71717a'];
 
     // Estado inicial de carpetas
     let folders = [
@@ -1393,6 +1490,7 @@
     let activeFolderId = 'ALL';
     let editingFolderId = null;
     let selectedSwatchColor = FOLDER_COLOR_PALETTE[0];
+    let currentUserEmail = '';
 
     // Elementos UI
     const cardsGrid = document.getElementById('cardsGrid');
@@ -1406,9 +1504,23 @@
     // LOGIN (demo local, sin backend real)
     function handleLogin(event) {
       event.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      currentUserEmail = email;
+
+      const namePart = email.split('@')[0] || 'Usuario';
+      document.getElementById('profileName').textContent = namePart;
+      document.getElementById('profileEmail').textContent = email;
+      document.getElementById('profileAvatar').textContent = namePart.charAt(0).toUpperCase();
+
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('appShell').style.display = 'flex';
       switchView('home');
+    }
+
+    function handleLogout() {
+      document.getElementById('appShell').style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('loginForm').reset();
     }
 
     // Cambiar vistas
@@ -1468,11 +1580,12 @@
       grid.innerHTML = folders.map(f => {
         const count = cards.filter(c => c.folderId === f.id).length;
         return `
-          <div class="home-folder-card" style="border-left-color:${f.color}" onclick="goToFolder('${f.id}')">
-            <span class="folder-dot" style="background:${f.color}"></span>
+          <button class="home-folder-card" style="background:${hexToRgba(f.color, 0.16)}" onclick="goToFolder('${f.id}')">
+            <div class="home-folder-icon" style="color:${f.color}"><i class="fa-solid fa-folder"></i></div>
             <div class="home-folder-name">${escapeHTML(f.name)}</div>
             <div class="home-folder-count">${count} tarjeta${count === 1 ? '' : 's'}</div>
-          </div>
+            <div class="home-folder-arrow" style="color:${f.color}"><i class="fa-solid fa-arrow-right"></i></div>
+          </button>
         `;
       }).join('');
     }
@@ -1784,8 +1897,8 @@
         document.getElementById('studyProgressBar').style.width = "0%";
         document.getElementById('prevCardBtn').disabled = true;
         document.getElementById('nextCardBtn').disabled = true;
-        studyCard.style.setProperty('--folder-accent', 'var(--accent-blue)');
-        document.getElementById('studyProgressBar').style.background = 'var(--accent-blue)';
+        studyCard.style.setProperty('--folder-accent', 'var(--accent-purple)');
+        document.getElementById('studyProgressBar').style.background = 'var(--accent-purple)';
         return;
       }
 
