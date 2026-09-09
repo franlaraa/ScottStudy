@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyDeck - Flashcards Studio</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" referrerpolicy="no-referrer" />
+  <style>
+    :root {
+      --bg-main: #f7f8fa;
+      --sidebar-bg: #ffffff;
+      --card-surface: #ffffff;
+      --accent-blue: #2563eb;
+      --accent-blue-hover: #1d4ed8;
+      --text-dark: #101828;
+      --text-muted: #667085;
+      --border-subtle: #e4e7ec;
+      --tag-bg: #f2f4f7;
+      --tag-text: #344054;
+      --radius-xl: 24px;
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.06);
+      --shadow-card: 0 20px 40px -12px rgba(16, 24, 40, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-dark);
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ============ LOGIN ============ */
+    .login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 400px;
+      background: var(--card-surface);
+      border-radius: var(--radius-xl);
+      padding: 40px 36px;
+      box-shadow: var(--shadow-card);
+      text-align: center;
+    }
+
+    .login-subtitle {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin: 4px 0 26px;
+    }
+
+    .login-card .form-group {
+      text-align: left;
+    }
+
+    .login-hint {
+      margin-top: 18px;
+      font-size: 0.78rem;
+      color: #98a2b3;
+    }
+
+    /* ============ APP SHELL ============ */
+    .app-shell {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Barra lateral estilo Desktop */
+    .sidebar {
+      width: 280px;
+      background: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 18px;
+      border-right: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+
+    .sidebar-top {
+      flex-shrink: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-left: 8px;
+      margin-bottom: 32px;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--accent-blue);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      letter-spacing: -0.5px;
+    }
+
+    .nav-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+    }
+
+    .nav-btn i {
+      width: 18px;
+      text-align: center;
+      font-size: 0.95rem;
+    }
+
+    .nav-btn:hover {
+      background: #f7f8fa;
+      color: var(--text-dark);
+    }
+
+    .nav-btn.active {
+      background: #eef2ff;
+      color: var(--accent-blue);
+    }
+
+    /* Carpetas en la barra lateral */
+    .sidebar-folders-wrap {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      margin: 6px -6px 0;
+      padding: 0 6px;
+    }
+
+    .sidebar-section-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #98a2b3;
+      padding: 18px 12px 8px;
+      flex-shrink: 0;
+    }
+
+    .folder-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .folder-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: background 0.15s ease;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+    }
+
+    .folder-item:hover {
+      background: #f7f8fa;
+    }
+
+    .folder-item.active {
+      background: #eef2ff;
+      color: var(--text-dark);
+    }
+
+    .folder-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .folder-item-name {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .folder-item-count {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: #f2f4f7;
+      padding: 2px 7px;
+      border-radius: 20px;
+      flex-shrink: 0;
+    }
+
+    .folder-item.active .folder-item-count {
+      background: #fff;
+    }
+
+    .btn-new-folder-inline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      text-align: left;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1.5px dashed var(--border-subtle);
+      background: transparent;
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 0.82rem;
+      cursor: pointer;
+      margin-top: 6px;
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+
+    .btn-new-folder-inline:hover {
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+      background: #f5f8ff;
+    }
+
+    .sidebar-stats {
+      background: #f7f8fa;
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      margin-top: 14px;
+    }
+
+    .sidebar-stats strong {
+      color: var(--text-dark);
+      font-size: 1rem;
+    }
+
+    /* Área de Contenido Principal */
+    .main-wrapper {
+      flex: 1;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 40px 48px;
+      position: relative;
+    }
+
+    .view-panel {
+      display: none;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    .view-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Header del contenido */
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 28px;
+      gap: 16px;
+    }
+
+    .panel-title h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 4px;
+    }
+
+    .panel-title p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* Botones primarios */
+    .btn-action {
+      background: var(--accent-blue);
+      color: #fff;
+      border: none;
+      padding: 12px 22px;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+      box-shadow: 0 6px 14px -3px rgba(37, 99, 235, 0.35);
+    }
+
+    .btn-action:hover {
+      background: var(--accent-blue-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-action.secondary {
+      background: #fff;
+      color: var(--text-dark);
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-action.secondary:hover {
+      background: #f8fafc;
+    }
+
+    /* ============ HOME ============ */
+    .home-stats-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .home-stat-card {
+      flex: 1;
+      min-width: 180px;
+      background: #fff;
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .home-stat-card i {
+      font-size: 1.2rem;
+      color: var(--accent-blue);
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: #eef2ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .home-stat-card strong {
+      display: block;
+      font-size: 1.5rem;
+      font-weight: 800;
+      line-height: 1.15;
+    }
+
+    .home-stat-card span {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .home-actions-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 34px;
+      flex-wrap: wrap;
+    }
+
+    .home-section-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+
+    .home-folders-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .home-folder-card {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
+      box-shadow: var(--shadow-sm);
+      border-left: 5px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-top: 1px solid var(--border-subtle);
+      border-right: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .home-folder-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 24px rgba(16, 24, 40, 0.08);
+    }
+
+    .home-folder-card .folder-dot {
+      display: inline-block;
+      margin-bottom: 10px;
+      width: 12px;
+      height: 12px;
+    }
+
+    .home-folder-name {
+      font-weight: 700;
+      font-size: 0.96rem;
+      margin-bottom: 4px;
+    }
+
+    .home-folder-count {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Filtros y Barra de Acciones de Tarjetas */
+    .deck-toolbar {
+      background: #fff;
+      padding: 14px 20px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-left, .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .filter-select {
+      background: var(--bg-main);
+      border: 1px solid var(--border-subtle);
+      padding: 8px 14px;
+      border-radius: 8px;
+      color: var(--text-dark);
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .select-all-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .select-all-label input[type="checkbox"] {
+      width: 17px;
+      height: 17px;
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    /* Cuadrícula de Tarjetas en Escritorio */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 20px;
+    }
+
+    .card-item {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-subtle);
+      border-left-width: 5px;
+      border-left-style: solid;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 210px;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .card-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 24px rgba(16, 24, 40, 0.08);
+    }
+
+    .card-item.selected {
+      box-shadow: 0 0 0 2px var(--accent-blue), var(--shadow-sm);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .card-checkbox {
+      width: 19px;
+      height: 19px;
+      accent-color: var(--accent-blue);
+      cursor: pointer;
+    }
+
+    .meta-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .tag-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      letter-spacing: 0.3px;
+    }
+
+    .card-body h4 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-dark);
+      line-height: 1.3;
+    }
+
+    .card-body p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    .btn-delete-card {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-delete-card:hover {
+      color: #ef4444;
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+      font-weight: 600;
+      background: #fff;
+      border-radius: var(--radius-lg);
+      border: 1.5px dashed var(--border-subtle);
+    }
+
+    .empty-state-small {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      padding: 12px 0;
+      text-align: center;
+    }
+
+    /* MODO ESTUDIAR (DESKTOP) */
+    .study-container {
+      max-width: 680px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .study-progress-card {
+      width: 100%;
+      background: #fff;
+      padding: 16px 24px;
+      border-radius: var(--radius-lg);
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .study-progress-bar {
+      flex: 1;
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .study-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--accent-blue);
+      border-radius: 20px;
+      transition: width 0.3s, background 0.3s;
+    }
+
+    .study-stage {
+      perspective: 1200px;
+      width: 100%;
+      height: 400px;
+      cursor: pointer;
+      margin-bottom: 28px;
+    }
+
+    .flashcard-3d {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.34, 1.3, 0.64, 1);
+      --folder-accent: var(--accent-blue);
+    }
+
+    .flashcard-3d.is-flipped {
+      transform: rotateY(180deg);
+    }
+
+    .flashcard-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      background: #ffffff;
+      border-radius: var(--radius-xl);
+      border-top: 6px solid var(--folder-accent);
+      box-shadow: var(--shadow-card);
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      user-select: none;
+      text-align: center;
+    }
+
+    .flashcard-face.back {
+      transform: rotateY(180deg);
+      background: #fbfdff;
+    }
+
+    .study-label {
+      display: inline-block;
+      align-self: center;
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 30px;
+      letter-spacing: 1px;
+    }
+
+    .flashcard-face.front .study-label {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+
+    .flashcard-face.back .study-label {
+      background: #e0fbf1;
+      color: #047857;
+    }
+
+    .study-content-title {
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: var(--text-dark);
+      line-height: 1.3;
+      margin: auto 0;
+      word-break: break-word;
+    }
+
+    .study-hint {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .study-controls {
+      display: flex;
+      gap: 16px;
+      width: 100%;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .round-ctrl-btn {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: #fff;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-dark);
+      font-size: 1.15rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .round-ctrl-btn:hover:not(:disabled) {
+      background: #f8fafc;
+      transform: scale(1.05);
+    }
+
+    .round-ctrl-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    /* Modal emergente */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 45, 68, 0.4);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 24px;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal-box {
+      background: #fff;
+      width: 100%;
+      max-width: 520px;
+      border-radius: var(--radius-xl);
+      padding: 32px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-box h3 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .modal-box h3 i {
+      color: var(--accent-blue);
+      font-size: 1.15rem;
+    }
+
+    .modal-subtitle {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin: 0 0 20px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: var(--radius-md);
+      background: #f8fafc;
+      font-size: 0.95rem;
+      outline: none;
+      cursor: auto;
+    }
+
+    .form-group select {
+      cursor: pointer;
+    }
+
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      border-color: var(--accent-blue);
+      background: #fff;
+    }
+
+    .form-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    /* Gestión de carpetas */
+    .folder-manage-list {
+      max-height: 220px;
+      overflow-y: auto;
+      margin-bottom: 6px;
+    }
+
+    .folder-manage-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 4px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .folder-manage-row:last-child {
+      border-bottom: none;
+    }
+
+    .folder-manage-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .folder-manage-name {
+      flex: 1;
+      font-weight: 700;
+      font-size: 0.92rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .folder-manage-count {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #94a3b8;
+      font-size: 0.95rem;
+      padding: 6px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-btn:hover {
+      background: #f1f5f9;
+      color: var(--text-dark);
+    }
+
+    .icon-btn.danger:hover {
+      background: #fef2f2;
+      color: #ef4444;
+    }
+
+    .folder-form-divider {
+      height: 1px;
+      background: #eef2f6;
+      margin: 18px 0;
+    }
+
+    .folder-form-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .folder-form-title .link-btn {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .color-swatch-picker {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .color-swatch {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.15s ease;
+    }
+
+    .color-swatch:hover {
+      transform: scale(1.12);
+    }
+
+    .color-swatch.selected {
+      box-shadow: 0 0 0 2px #fff, 0 0 0 4px currentColor;
+    }
+
+    /* ===================================================
+       PLANTILLA DE IMPRESIÓN DINÁMICA (SOLO SELECCIONADAS)
+       =================================================== */
+    #printSection {
+      display: none;
+    }
+
+    @media print {
+      body {
+        background: transparent !important;
+        overflow: visible !important;
+      }
+
+      .login-screen, .app-shell, .modal-backdrop {
+        display: none !important;
+      }
+
+      #printSection {
+        display: block !important;
+        width: 100%;
+      }
+
+      .print-card-unit {
+        display: flex;
+        border: 2px dashed #64748b;
+        border-radius: 8px;
+        min-height: 60mm;
+        margin-bottom: 12mm;
+        page-break-inside: avoid;
+        box-sizing: border-box;
+      }
+
+      .print-half {
+        width: 50%;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        box-sizing: border-box;
+      }
+
+      .print-half.left-question {
+        border-right: 2px dashed #94a3b8;
+        background: #f8fafc;
+      }
+
+      .print-color-bar {
+        width: 40px;
+        height: 4px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+      }
+
+      .print-meta-pill {
+        font-size: 9pt;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+
+      .print-text {
+        font-size: 13pt;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.4;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN -->
+  <div class="login-screen" id="loginScreen">
+    <div class="login-card">
+      <div class="brand" style="justify-content: center; margin-bottom: 22px;">
+        <div class="brand-icon"><i class="fa-solid fa-book-open"></i></div>
+        <div class="brand-title">StudyDeck</div>
+      </div>
+      <p class="login-subtitle">Inicia sesión para continuar con tu repaso.</p>
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="loginEmail">Correo electrónico</label>
+          <input type="email" id="loginEmail" placeholder="tu@email.com" required>
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Contraseña</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn-action" style="width: 100%; justify-content: center; margin-top: 8px;">
+          <i class="fa-solid fa-arrow-right-to-bracket"></i> Iniciar sesión
+        </button>
+      </form>
+      <p class="login-hint">Demo local sin backend: cualquier correo y contraseña te dará acceso.</p>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div class="app-shell" id="appShell" style="display: none;">
+
+    <!-- BARRA LATERAL (DESKTOP) -->
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="brand">
+          <div class="brand-icon"><i class="fa-solid fa-book-open"></i></div>
+          <div class="brand-title">StudyDeck</div>
+        </div>
+
+        <nav class="nav-menu">
+          <button class="nav-btn active" data-view="home" onclick="switchView('home')">
+            <i class="fa-solid fa-house"></i> Inicio
+          </button>
+          <button class="nav-btn" data-view="deck" onclick="switchView('deck')">
+            <i class="fa-solid fa-layer-group"></i> Mis Tarjetas
+          </button>
+          <button class="nav-btn" data-view="study" onclick="switchView('study')">
+            <i class="fa-solid fa-bullseye"></i> Empezar a Estudiar
+          </button>
+        </nav>
+      </div>
+
+      <div class="sidebar-folders-wrap">
+        <div class="sidebar-section-label">Carpetas</div>
+        <div class="folder-list" id="folderList"></div>
+        <button class="btn-new-folder-inline" onclick="openFolderModal()">
+          <i class="fa-solid fa-folder-plus"></i> Nueva carpeta
+        </button>
+      </div>
+
+      <div class="sidebar-stats">
+        <span>Total tarjetas: <strong id="statTotal">0</strong></span>
+        <span>Carpetas: <strong id="statFolders">0</strong></span>
+        <span>Seleccionadas para imprimir: <strong id="statSelected">0</strong></span>
+      </div>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-wrapper">
+
+      <!-- VISTA 0: INICIO -->
+      <section id="viewHome" class="view-panel active">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h2>Hola de nuevo</h2>
+            <p>Esto es lo que tienes guardado en StudyDeck ahora mismo.</p>
+          </div>
+        </div>
+
+        <div class="home-stats-row">
+          <div class="home-stat-card">
+            <i class="fa-solid fa-layer-group"></i>
+            <div>
+              <strong id="homeStatTotal">0</strong>
+              <span>Tarjetas totales</span>
+            </div>
+          </div>
+          <div class="home-stat-card">
+            <i class="fa-solid fa-folder"></i>
+            <div>
+              <strong id="homeStatFolders">0</strong>
+              <span>Carpetas</span>
+            </div>
+          </div>
+          <div class="home-stat-card">
+            <i class="fa-solid fa-print"></i>
+            <div>
+              <strong id="homeStatSelected">0</strong>
+              <span>Listas para imprimir</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="home-actions-row">
+          <button class="btn-action" onclick="switchView('study')">
+            <i class="fa-solid fa-bullseye"></i> Empezar a Estudiar
+          </button>
+          <button class="btn-action secondary" onclick="openCreateModal()">
+            <i class="fa-solid fa-plus"></i> Nueva Tarjeta
+          </button>
+        </div>
+
+        <h3 class="home-section-title">Tus carpetas</h3>
+        <div class="home-folders-grid" id="homeFoldersGrid"></div>
+      </section>
+
+      <!-- VISTA 1: GESTIÓN DE TARJETAS -->
+      <section id="viewDeck" class="view-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h2>Banco de Tarjetas</h2>
+            <p>Organiza tus tarjetas en carpetas con color propio y marca las que quieras imprimir.</p>
+          </div>
+          <div style="display: flex; gap: 12px;">
+            <button class="btn-action secondary" onclick="printSelectedCards()">
+              <i class="fa-solid fa-print"></i> Imprimir Selección (<span id="printCount">0</span>)
+            </button>
+            <button class="btn-action" onclick="openCreateModal()">
+              <i class="fa-solid fa-plus"></i> Nueva Tarjeta
+            </button>
+          </div>
+        </div>
+
+        <!-- Barra de herramientas y filtros -->
+        <div class="deck-toolbar">
+          <div class="toolbar-left">
+            <label class="select-all-label">
+              <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this.checked)">
+              <span>Marcar todas para imprimir</span>
+            </label>
+          </div>
+          <div class="toolbar-right">
+            <label for="tagFilter" style="font-size:0.9rem; font-weight:600; color:var(--text-muted)">Etiqueta:</label>
+            <select class="filter-select" id="tagFilter" onchange="filterCards()">
+              <option value="ALL">Todas las etiquetas</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Parrilla de tarjetas -->
+        <div class="cards-grid" id="cardsGrid"></div>
+      </section>
+
+      <!-- VISTA 2: ESTUDIO / INTERACTIVO -->
+      <section id="viewStudy" class="view-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <h2>Modo Repaso</h2>
+            <p>Pon a prueba tus conocimientos volteando la tarjeta.</p>
+          </div>
+        </div>
+
+        <div class="study-container">
+          <!-- Progreso -->
+          <div class="study-progress-card">
+            <span style="font-weight: 700; font-size: 0.9rem;" id="studyProgressText">1 / 1</span>
+            <div class="study-progress-bar">
+              <div class="study-progress-fill" id="studyProgressBar"></div>
+            </div>
+          </div>
+
+          <!-- Tarjeta 3D interactiva -->
+          <div class="study-stage" onclick="flipStudyCard()">
+            <div class="flashcard-3d" id="studyCard">
+              <!-- Cara Pregunta -->
+              <div class="flashcard-face front">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="study-label">Pregunta</span>
+                  <span id="studyCardFolder" class="tag-badge"></span>
+                </div>
+                <div class="study-content-title" id="studyQuestionText">Cargando...</div>
+                <div class="study-hint"><i class="fa-solid fa-hand-pointer"></i> Haz clic para revelar la respuesta</div>
+              </div>
+
+              <!-- Cara Respuesta -->
+              <div class="flashcard-face back">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="study-label">Respuesta</span>
+                  <span id="studyCardTag" class="tag-badge"></span>
+                </div>
+                <div class="study-content-title" id="studyAnswerText">Cargando...</div>
+                <div class="study-hint"><i class="fa-solid fa-hand-pointer"></i> Haz clic para volver a la pregunta</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Controles -->
+          <div class="study-controls">
+            <button class="round-ctrl-btn" id="prevCardBtn" onclick="nextStudyCard(-1)" aria-label="Tarjeta anterior"><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="btn-action" style="padding: 16px 36px;" onclick="flipStudyCard()">
+              <i class="fa-solid fa-rotate"></i> Voltear Tarjeta
+            </button>
+            <button class="round-ctrl-btn" id="nextCardBtn" onclick="nextStudyCard(1)" aria-label="Tarjeta siguiente"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL: CREAR TARJETA -->
+  <div class="modal-backdrop" id="createModal">
+    <div class="modal-box">
+      <h3><i class="fa-solid fa-layer-group"></i> Crear Nueva Tarjeta</h3>
+      <div class="form-group">
+        <label for="inputQuestion">Pregunta / Anverso</label>
+        <textarea id="inputQuestion" rows="2" placeholder="Ej: ¿Qué es una Closure en JavaScript?"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="inputAnswer">Respuesta / Reverso</label>
+        <textarea id="inputAnswer" rows="2" placeholder="Ej: Una función que conserva acceso a su ámbito léxico exterior..."></textarea>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group">
+          <label for="inputFolder">Carpeta</label>
+          <select id="inputFolder">
+            <option value="">Sin carpeta</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="inputTag">Etiqueta</label>
+          <input type="text" id="inputTag" placeholder="Ej: Importante, Básico...">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-action secondary" onclick="closeCreateModal()"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+        <button class="btn-action" onclick="saveCard()"><i class="fa-solid fa-floppy-disk"></i> Guardar Tarjeta</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CARPETAS -->
+  <div class="modal-backdrop" id="folderModal">
+    <div class="modal-box">
+      <h3><i class="fa-solid fa-folder-open"></i> Carpetas y Temarios</h3>
+      <p class="modal-subtitle">Crea carpetas y asígnales un color para diferenciar tus tarjetas de un vistazo.</p>
+
+      <div id="folderManageList" class="folder-manage-list"></div>
+
+      <div class="folder-form-divider"></div>
+
+      <h4 id="folderFormTitle" class="folder-form-title">
+        <span>Nueva carpeta</span>
+        <button type="button" class="link-btn" id="folderCancelEditBtn" onclick="cancelFolderEdit()" style="display:none;">Cancelar edición</button>
+      </h4>
+      <div class="form-group">
+        <label for="newFolderName">Nombre</label>
+        <input type="text" id="newFolderName" placeholder="Ej: Historia, Backend...">
+      </div>
+      <div class="form-group">
+        <label>Color</label>
+        <div class="color-swatch-picker" id="colorSwatchPicker"></div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-action secondary" onclick="closeFolderModal()"><i class="fa-solid fa-xmark"></i> Cerrar</button>
+        <button class="btn-action" id="folderSubmitBtn" onclick="submitFolderForm()"><i class="fa-solid fa-plus"></i> Crear Carpeta</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN DINÁMICA DE IMPRESIÓN -->
+  <div id="printSection"></div>
+
+  <script>
+    // Paleta de colores disponible para carpetas
+    const FOLDER_COLOR_PALETTE = ['#2563eb', '#16a34a', '#d97706', '#dc2626', '#7c3aed', '#db2777', '#0d9488', '#4f46e5', '#65a30d', '#71717a'];
+
+    // Estado inicial de carpetas
+    let folders = [
+      { id: 'f-web', name: 'Programación Web', color: '#2563eb' },
+      { id: 'f-math', name: 'Matemáticas', color: '#16a34a' },
+      { id: 'f-sci', name: 'Ciencias', color: '#d97706' }
+    ];
+
+    // Estado inicial de las tarjetas
+    let cards = [
+      {
+        id: 1,
+        question: "¿Qué es el Virtual DOM?",
+        answer: "Una representación ligera en memoria del DOM real que optimiza los re-renderizados mediante diffing.",
+        folderId: 'f-web',
+        tag: "React",
+        selectedForPrint: true
+      },
+      {
+        id: 2,
+        question: "¿Qué establece el teorema de Pitágoras?",
+        answer: "a² + b² = c² (En todo triángulo rectángulo el cuadrado de la hipotenusa es igual a la suma del cuadrado de los catetos).",
+        folderId: 'f-math',
+        tag: "Geometría",
+        selectedForPrint: true
+      },
+      {
+        id: 3,
+        question: "¿En qué año se descubrió la penicilina?",
+        answer: "En 1928, descubierta por Alexander Fleming.",
+        folderId: 'f-sci',
+        tag: "Medicina",
+        selectedForPrint: false
+      },
+      {
+        id: 4,
+        question: "¿Cuál es la capital de Australia?",
+        answer: "Canberra (no Sídney, que es la ciudad más poblada pero no la capital).",
+        folderId: null,
+        tag: "Geografía",
+        selectedForPrint: false
+      }
+    ];
+
+    let studyIndex = 0;
+    let activeFolderId = 'ALL';
+    let editingFolderId = null;
+    let selectedSwatchColor = FOLDER_COLOR_PALETTE[0];
+
+    // Elementos UI
+    const cardsGrid = document.getElementById('cardsGrid');
+    const tagFilter = document.getElementById('tagFilter');
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    const printCount = document.getElementById('printCount');
+    const statTotal = document.getElementById('statTotal');
+    const statFolders = document.getElementById('statFolders');
+    const statSelected = document.getElementById('statSelected');
+
+    // LOGIN (demo local, sin backend real)
+    function handleLogin(event) {
+      event.preventDefault();
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('appShell').style.display = 'flex';
+      switchView('home');
+    }
+
+    // Cambiar vistas
+    function switchView(view) {
+      document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector(`.nav-btn[data-view="${view}"]`).classList.add('active');
+
+      if (view === 'home') {
+        document.getElementById('viewHome').classList.add('active');
+        renderHome();
+      } else if (view === 'deck') {
+        document.getElementById('viewDeck').classList.add('active');
+        renderCards();
+      } else {
+        document.getElementById('viewStudy').classList.add('active');
+        studyIndex = 0;
+        renderStudyCard();
+      }
+    }
+
+    // Helpers de carpetas
+    function getFolder(folderId) {
+      return folders.find(f => f.id === folderId) || null;
+    }
+
+    function hexToRgba(hex, alpha) {
+      const h = hex.replace('#', '');
+      const full = h.length === 3 ? h.split('').map(c => c + c).join('') : h;
+      const bigint = parseInt(full, 16);
+      const r = (bigint >> 16) & 255;
+      const g = (bigint >> 8) & 255;
+      const b = bigint & 255;
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    // INICIO (Home)
+    function renderHome() {
+      document.getElementById('homeStatTotal').textContent = cards.length;
+      document.getElementById('homeStatFolders').textContent = folders.length;
+      document.getElementById('homeStatSelected').textContent = cards.filter(c => c.selectedForPrint).length;
+
+      const grid = document.getElementById('homeFoldersGrid');
+
+      if (folders.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            Todavía no has creado carpetas.<br>
+            <button class="btn-action secondary" style="margin-top:14px" onclick="openFolderModal()">
+              <i class="fa-solid fa-folder-plus"></i> Crear carpeta
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = folders.map(f => {
+        const count = cards.filter(c => c.folderId === f.id).length;
+        return `
+          <div class="home-folder-card" style="border-left-color:${f.color}" onclick="goToFolder('${f.id}')">
+            <span class="folder-dot" style="background:${f.color}"></span>
+            <div class="home-folder-name">${escapeHTML(f.name)}</div>
+            <div class="home-folder-count">${count} tarjeta${count === 1 ? '' : 's'}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function goToFolder(folderId) {
+      activeFolderId = folderId;
+      switchView('deck');
+    }
+
+    // Barra lateral de carpetas
+    function renderFolderSidebar() {
+      const list = document.getElementById('folderList');
+      const countAll = cards.length;
+      const countNone = cards.filter(c => !c.folderId).length;
+
+      let html = `
+        <button class="folder-item ${activeFolderId === 'ALL' ? 'active' : ''}" onclick="setFolderFilter('ALL')">
+          <span class="folder-dot" style="background:#94a3b8"></span>
+          <span class="folder-item-name">Todas las tarjetas</span>
+          <span class="folder-item-count">${countAll}</span>
+        </button>
+      `;
+
+      folders.forEach(f => {
+        const count = cards.filter(c => c.folderId === f.id).length;
+        html += `
+          <button class="folder-item ${activeFolderId === f.id ? 'active' : ''}" onclick="setFolderFilter('${f.id}')">
+            <span class="folder-dot" style="background:${f.color}"></span>
+            <span class="folder-item-name">${escapeHTML(f.name)}</span>
+            <span class="folder-item-count">${count}</span>
+          </button>
+        `;
+      });
+
+      html += `
+        <button class="folder-item ${activeFolderId === 'NONE' ? 'active' : ''}" onclick="setFolderFilter('NONE')">
+          <span class="folder-dot" style="background:#cbd5e1"></span>
+          <span class="folder-item-name">Sin carpeta</span>
+          <span class="folder-item-count">${countNone}</span>
+        </button>
+      `;
+
+      list.innerHTML = html;
+    }
+
+    function setFolderFilter(id) {
+      activeFolderId = id;
+      renderCards();
+    }
+
+    // Renderizar listado de tarjetas en "Mis Tarjetas"
+    function renderCards() {
+      const selectedTag = tagFilter.value;
+
+      const filtered = cards.filter(card => {
+        let folderMatch;
+        if (activeFolderId === 'ALL') folderMatch = true;
+        else if (activeFolderId === 'NONE') folderMatch = !card.folderId;
+        else folderMatch = card.folderId === activeFolderId;
+
+        const tagMatch = selectedTag === 'ALL' || card.tag === selectedTag;
+        return folderMatch && tagMatch;
+      });
+
+      cardsGrid.innerHTML = '';
+
+      if (filtered.length === 0) {
+        cardsGrid.innerHTML = `<div class="empty-state">No hay tarjetas en esta vista todavía.</div>`;
+      }
+
+      filtered.forEach(card => {
+        const folder = getFolder(card.folderId);
+        const accentColor = folder ? folder.color : '#cbd5e1';
+        const folderLabel = folder ? folder.name : 'Sin carpeta';
+
+        const cardEl = document.createElement('div');
+        cardEl.className = `card-item ${card.selectedForPrint ? 'selected' : ''}`;
+        cardEl.style.borderLeftColor = accentColor;
+        cardEl.innerHTML = `
+          <div class="card-top">
+            <input type="checkbox" class="card-checkbox" ${card.selectedForPrint ? 'checked' : ''} onchange="toggleCardPrint(${card.id}, this.checked)">
+            <div class="meta-tags">
+              <span class="tag-badge" style="background:${hexToRgba(accentColor, 0.14)}; color:${accentColor}"><i class="fa-solid fa-folder"></i> ${escapeHTML(folderLabel)}</span>
+              ${card.tag ? `<span class="tag-badge"><i class="fa-solid fa-tag"></i> ${escapeHTML(card.tag)}</span>` : ''}
+            </div>
+          </div>
+          <div class="card-body">
+            <h4>${escapeHTML(card.question)}</h4>
+            <p>${escapeHTML(card.answer)}</p>
+          </div>
+          <div class="card-footer">
+            <button class="btn-delete-card" onclick="deleteCard(${card.id})"><i class="fa-solid fa-trash-can"></i> Eliminar</button>
+          </div>
+        `;
+        cardsGrid.appendChild(cardEl);
+      });
+
+      updateStats();
+      updateTagFilterOptions();
+      renderFolderSidebar();
+    }
+
+    // Actualizar conteos y checkboxes globales
+    function updateStats() {
+      const total = cards.length;
+      const selected = cards.filter(c => c.selectedForPrint).length;
+
+      statTotal.textContent = total;
+      statFolders.textContent = folders.length;
+      statSelected.textContent = selected;
+      printCount.textContent = selected;
+
+      selectAllCheckbox.checked = total > 0 && selected === total;
+      selectAllCheckbox.indeterminate = selected > 0 && selected < total;
+    }
+
+    // Marcar / Desmarcar individual
+    function toggleCardPrint(id, isChecked) {
+      const card = cards.find(c => c.id === id);
+      if (card) {
+        card.selectedForPrint = isChecked;
+        renderCards();
+      }
+    }
+
+    // Marcar / Desmarcar todas
+    function toggleSelectAll(isChecked) {
+      cards.forEach(c => c.selectedForPrint = isChecked);
+      renderCards();
+    }
+
+    // Rellenar filtro de etiquetas dinámicamente
+    function updateTagFilterOptions() {
+      const currentTag = tagFilter.value;
+      const tags = ['ALL', ...new Set(cards.map(c => c.tag).filter(Boolean))];
+      tagFilter.innerHTML = tags.map(t => `<option value="${t}" ${t === currentTag ? 'selected' : ''}>${t === 'ALL' ? 'Todas las etiquetas' : t}</option>`).join('');
+    }
+
+    function filterCards() {
+      renderCards();
+    }
+
+    function deleteCard(id) {
+      cards = cards.filter(c => c.id !== id);
+      renderCards();
+    }
+
+    // MODAL DE CREACIÓN DE TARJETA
+    function populateFolderSelect() {
+      const select = document.getElementById('inputFolder');
+      select.innerHTML = `<option value="">Sin carpeta</option>` +
+        folders.map(f => `<option value="${f.id}">${escapeHTML(f.name)}</option>`).join('');
+    }
+
+    function openCreateModal() {
+      document.getElementById('inputQuestion').value = '';
+      document.getElementById('inputAnswer').value = '';
+      document.getElementById('inputTag').value = '';
+      populateFolderSelect();
+      document.getElementById('inputFolder').value = '';
+      document.getElementById('createModal').classList.add('active');
+    }
+
+    function closeCreateModal() {
+      document.getElementById('createModal').classList.remove('active');
+    }
+
+    function saveCard() {
+      const q = document.getElementById('inputQuestion').value.trim();
+      const a = document.getElementById('inputAnswer').value.trim();
+      const folderId = document.getElementById('inputFolder').value || null;
+      const tag = document.getElementById('inputTag').value.trim();
+
+      if (!q || !a) {
+        alert("Completa la pregunta y la respuesta.");
+        return;
+      }
+
+      cards.push({
+        id: Date.now(),
+        question: q,
+        answer: a,
+        folderId: folderId,
+        tag: tag,
+        selectedForPrint: true
+      });
+
+      closeCreateModal();
+      renderCards();
+    }
+
+    // MODAL DE CARPETAS
+    function renderColorSwatches() {
+      const wrap = document.getElementById('colorSwatchPicker');
+      wrap.innerHTML = FOLDER_COLOR_PALETTE.map(c => `
+        <div class="color-swatch ${c === selectedSwatchColor ? 'selected' : ''}" style="background:${c}; color:${c}" onclick="selectColorSwatch('${c}')"></div>
+      `).join('');
+    }
+
+    function selectColorSwatch(color) {
+      selectedSwatchColor = color;
+      renderColorSwatches();
+    }
+
+    function renderFolderManageList() {
+      const wrap = document.getElementById('folderManageList');
+      if (folders.length === 0) {
+        wrap.innerHTML = `<p class="empty-state-small">Todavía no has creado carpetas.</p>`;
+        return;
+      }
+      wrap.innerHTML = folders.map(f => {
+        const count = cards.filter(c => c.folderId === f.id).length;
+        return `
+          <div class="folder-manage-row">
+            <span class="folder-manage-dot" style="background:${f.color}"></span>
+            <span class="folder-manage-name">${escapeHTML(f.name)}</span>
+            <span class="folder-manage-count">${count} tarjeta${count === 1 ? '' : 's'}</span>
+            <button class="icon-btn" title="Editar" onclick="startEditFolder('${f.id}')"><i class="fa-solid fa-pen"></i></button>
+            <button class="icon-btn danger" title="Eliminar" onclick="deleteFolder('${f.id}')"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openFolderModal() {
+      cancelFolderEdit();
+      renderFolderManageList();
+      document.getElementById('folderModal').classList.add('active');
+    }
+
+    function closeFolderModal() {
+      document.getElementById('folderModal').classList.remove('active');
+    }
+
+    function startEditFolder(id) {
+      const folder = getFolder(id);
+      if (!folder) return;
+      editingFolderId = id;
+      document.getElementById('newFolderName').value = folder.name;
+      selectedSwatchColor = folder.color;
+      renderColorSwatches();
+      document.querySelector('#folderFormTitle span').textContent = 'Editar carpeta';
+      document.getElementById('folderCancelEditBtn').style.display = '';
+      document.getElementById('folderSubmitBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar Cambios';
+    }
+
+    function cancelFolderEdit() {
+      editingFolderId = null;
+      document.getElementById('newFolderName').value = '';
+      selectedSwatchColor = FOLDER_COLOR_PALETTE[0];
+      renderColorSwatches();
+      document.querySelector('#folderFormTitle span').textContent = 'Nueva carpeta';
+      document.getElementById('folderCancelEditBtn').style.display = 'none';
+      document.getElementById('folderSubmitBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Crear Carpeta';
+    }
+
+    function submitFolderForm() {
+      const name = document.getElementById('newFolderName').value.trim();
+      if (!name) {
+        alert('Ponle un nombre a la carpeta.');
+        return;
+      }
+
+      if (editingFolderId) {
+        const folder = getFolder(editingFolderId);
+        folder.name = name;
+        folder.color = selectedSwatchColor;
+      } else {
+        folders.push({ id: 'f' + Date.now(), name, color: selectedSwatchColor });
+      }
+
+      cancelFolderEdit();
+      renderFolderManageList();
+      populateFolderSelect();
+      renderCards();
+      renderHome();
+    }
+
+    function deleteFolder(id) {
+      const folder = getFolder(id);
+      if (!folder) return;
+      const affected = cards.filter(c => c.folderId === id).length;
+      const msg = affected > 0
+        ? `Vas a eliminar "${folder.name}". ${affected} tarjeta(s) pasarán a "Sin carpeta". ¿Continuar?`
+        : `¿Eliminar la carpeta "${folder.name}"?`;
+      if (!confirm(msg)) return;
+
+      cards.forEach(c => { if (c.folderId === id) c.folderId = null; });
+      folders = folders.filter(f => f.id !== id);
+
+      if (activeFolderId === id) activeFolderId = 'ALL';
+      if (editingFolderId === id) cancelFolderEdit();
+
+      renderFolderManageList();
+      populateFolderSelect();
+      renderCards();
+      renderHome();
+    }
+
+    // MODO ESTUDIAR
+    function renderStudyCard() {
+      const studyCard = document.getElementById('studyCard');
+      studyCard.classList.remove('is-flipped');
+
+      if (cards.length === 0) {
+        document.getElementById('studyQuestionText').textContent = "No hay tarjetas disponibles";
+        document.getElementById('studyAnswerText').textContent = "Crea alguna tarjeta para empezar.";
+        document.getElementById('studyProgressText').textContent = "0 / 0";
+        document.getElementById('studyProgressBar').style.width = "0%";
+        document.getElementById('prevCardBtn').disabled = true;
+        document.getElementById('nextCardBtn').disabled = true;
+        studyCard.style.setProperty('--folder-accent', 'var(--accent-blue)');
+        document.getElementById('studyProgressBar').style.background = 'var(--accent-blue)';
+        return;
+      }
+
+      const card = cards[studyIndex];
+      const folder = getFolder(card.folderId);
+      const accentColor = folder ? folder.color : '#94a3b8';
+      const folderLabel = folder ? folder.name : 'Sin carpeta';
+
+      document.getElementById('studyQuestionText').textContent = card.question;
+      document.getElementById('studyAnswerText').textContent = card.answer;
+
+      document.getElementById('studyCardFolder').innerHTML = `<i class="fa-solid fa-folder"></i> ${escapeHTML(folderLabel)}`;
+      document.getElementById('studyCardFolder').style.background = hexToRgba(accentColor, 0.14);
+      document.getElementById('studyCardFolder').style.color = accentColor;
+
+      const tagBadge = document.getElementById('studyCardTag');
+      if (card.tag) {
+        tagBadge.innerHTML = `<i class="fa-solid fa-tag"></i> ${escapeHTML(card.tag)}`;
+        tagBadge.style.display = '';
+      } else {
+        tagBadge.style.display = 'none';
+      }
+
+      studyCard.style.setProperty('--folder-accent', accentColor);
+      document.getElementById('studyProgressBar').style.background = accentColor;
+
+      document.getElementById('studyProgressText').textContent = `${studyIndex + 1} / ${cards.length}`;
+      document.getElementById('studyProgressBar').style.width = `${((studyIndex + 1) / cards.length) * 100}%`;
+
+      document.getElementById('prevCardBtn').disabled = studyIndex === 0;
+      document.getElementById('nextCardBtn').disabled = studyIndex === cards.length - 1;
+    }
+
+    function flipStudyCard() {
+      if (cards.length > 0) {
+        document.getElementById('studyCard').classList.toggle('is-flipped');
+      }
+    }
+
+    function nextStudyCard(direction) {
+      const target = studyIndex + direction;
+      if (target >= 0 && target < cards.length) {
+        studyIndex = target;
+        renderStudyCard();
+      }
+    }
+
+    // IMPRESIÓN (SOLO LAS SELECCIONADAS)
+    function printSelectedCards() {
+      const toPrint = cards.filter(c => c.selectedForPrint);
+
+      if (toPrint.length === 0) {
+        alert("Selecciona al menos una tarjeta antes de imprimir.");
+        return;
+      }
+
+      const printSection = document.getElementById('printSection');
+      printSection.innerHTML = '';
+
+      toPrint.forEach(card => {
+        const folder = getFolder(card.folderId);
+        const accentColor = folder ? folder.color : '#64748b';
+        const folderLabel = folder ? folder.name : 'Sin carpeta';
+
+        const unit = document.createElement('div');
+        unit.className = 'print-card-unit';
+        unit.innerHTML = `
+          <div class="print-half left-question">
+            <div class="print-color-bar" style="background:${accentColor}"></div>
+            <div class="print-meta-pill" style="color:${accentColor}">${escapeHTML(folderLabel)}${card.tag ? ' · ' + escapeHTML(card.tag) : ''}</div>
+            <div class="print-text">${escapeHTML(card.question)}</div>
+          </div>
+          <div class="print-half">
+            <div class="print-color-bar" style="background:${accentColor}"></div>
+            <div class="print-meta-pill" style="color:${accentColor}">Respuesta</div>
+            <div class="print-text">${escapeHTML(card.answer)}</div>
+          </div>
+        `;
+        printSection.appendChild(unit);
+      });
+
+      window.print();
+    }
+
+    function escapeHTML(str) {
+      const d = document.createElement('div');
+      d.textContent = str == null ? '' : str;
+      return d.innerHTML;
+    }
+
+    // Inicio: precalcula listas y contadores aunque el login todavía esté visible
+    renderColorSwatches();
+    renderCards();
+    renderHome();
+  </script>
+</body>
+</html>
