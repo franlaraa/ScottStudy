@@ -693,42 +693,331 @@
       cursor: pointer;
     }
 
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-      gap: 20px;
+    /* Acciones rápidas (estilo explorador de archivos) */
+    .quick-actions-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
     }
 
-    .card-item {
-      background: #fff;
-      border-radius: var(--radius-lg);
-      padding: 20px 22px;
-      box-shadow: var(--shadow-sm);
-      border: 1px solid var(--border-subtle);
-      border-left-width: 5px;
-      border-left-style: solid;
+    .quick-action-btn {
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      min-height: 210px;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 22px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      background: #fff;
+      color: var(--text-dark);
+      font-weight: 700;
+      font-size: 0.82rem;
+      cursor: pointer;
       transition: all 0.2s ease;
-      position: relative;
+      min-width: 90px;
     }
 
-    .card-item:hover {
+    .quick-action-btn i {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+    }
+
+    .quick-action-btn:hover {
+      border-color: var(--accent-purple);
+      background: var(--accent-purple-light);
+    }
+
+    .quick-action-btn:hover i {
+      color: var(--accent-purple);
+    }
+
+    .quick-action-btn.primary {
+      background: var(--text-dark);
+      border-color: var(--text-dark);
+      color: #fff;
+    }
+
+    .quick-action-btn.primary i {
+      color: #fff;
+    }
+
+    .quick-action-btn.primary:hover {
+      background: #2d2c2c;
+      border-color: #2d2c2c;
+    }
+
+    .section-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    /* Carpetas en cuadrícula (Mis Tarjetas) */
+    .folder-tiles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+    }
+
+    .folder-tile {
+      background: #fff;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      text-align: left;
+    }
+
+    .folder-tile:hover {
       transform: translateY(-3px);
       box-shadow: 0 14px 26px rgba(66, 64, 64, 0.1);
     }
 
-    .card-item.selected {
-      box-shadow: 0 0 0 2px var(--accent-purple), var(--shadow-sm);
+    .folder-tile.active {
+      box-shadow: 0 0 0 2px var(--accent-purple);
     }
 
-    .card-top {
+    .folder-tile-icon-wrap {
+      width: 52px;
+      height: 52px;
+      border-radius: 15px;
       display: flex;
-      justify-content: space-between;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      margin-bottom: 14px;
+    }
+
+    .folder-tile-name {
+      font-weight: 700;
+      font-size: 0.92rem;
+      margin-bottom: 3px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding-right: 20px;
+    }
+
+    .folder-tile-meta {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .folder-tile-menu {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+
+    .folder-tile-add {
+      display: flex;
+      flex-direction: column;
       align-items: flex-start;
-      margin-bottom: 12px;
+      border-style: dashed;
+      color: var(--text-muted);
+    }
+
+    /* Tabla de tarjetas */
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .table-search {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 10px 16px;
+      flex: 1;
+      min-width: 240px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .table-search i {
+      color: var(--text-muted);
+    }
+
+    .table-search input {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 0.9rem;
+      flex: 1;
+      color: var(--text-dark);
+    }
+
+    .table-toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .cards-table-wrap {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow-x: auto;
+    }
+
+    .cards-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 640px;
+    }
+
+    .cards-table th {
+      text-align: left;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--text-muted);
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      white-space: nowrap;
+    }
+
+    .cards-table th.sortable {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .cards-table th.sortable:hover {
+      color: var(--accent-purple);
+    }
+
+    .cards-table th.sortable i {
+      margin-left: 6px;
+      font-size: 0.7rem;
+    }
+
+    .cards-table th.sorted {
+      color: var(--accent-purple);
+    }
+
+    .cards-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #f4f2fb;
+      font-size: 0.87rem;
+      vertical-align: middle;
+    }
+
+    .cards-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .cards-table tbody tr:hover td {
+      background: #faf9fc;
+    }
+
+    .cards-table tbody tr.row-selected td {
+      background: var(--accent-purple-light);
+    }
+
+    .col-checkbox {
+      width: 44px;
+    }
+
+    .col-actions {
+      width: 52px;
+      text-align: right;
+    }
+
+    .col-date {
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .col-question strong {
+      display: block;
+      color: var(--text-dark);
+      font-weight: 700;
+      max-width: 320px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .table-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .status-pill {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .status-pill.on {
+      background: var(--accent-purple-light);
+      color: var(--accent-purple);
+    }
+
+    .status-pill.off {
+      background: #f4f2fb;
+      color: var(--text-muted);
+    }
+
+    .table-empty {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .table-pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .table-pagination > span {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .pagination-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .pagination-controls .round-ctrl-btn {
+      width: 36px;
+      height: 36px;
+      font-size: 0.8rem;
+    }
+
+    .pagination-controls span {
+      font-weight: 700;
+      color: var(--text-dark);
+      font-size: 0.85rem;
     }
 
     .card-checkbox {
@@ -736,13 +1025,6 @@
       height: 19px;
       accent-color: var(--accent-purple);
       cursor: pointer;
-    }
-
-    .meta-tags {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
     }
 
     .tag-badge {
@@ -757,44 +1039,6 @@
       background: var(--tag-bg);
       color: var(--tag-text);
       letter-spacing: 0.3px;
-    }
-
-    .card-body h4 {
-      font-size: 1.15rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-      color: var(--text-dark);
-      line-height: 1.3;
-    }
-
-    .card-body p {
-      font-size: 0.92rem;
-      color: var(--text-muted);
-      line-height: 1.45;
-    }
-
-    .card-footer {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 14px;
-      padding-top: 10px;
-      border-top: 1px solid rgba(66, 64, 64, 0.08);
-    }
-
-    .btn-delete-card {
-      background: none;
-      border: none;
-      color: #b3b0bd;
-      cursor: pointer;
-      font-size: 0.85rem;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .btn-delete-card:hover {
-      color: #ef4444;
     }
 
     .empty-state {
@@ -1625,29 +1869,80 @@
             <h2>Banco de Tarjetas</h2>
             <p>Organiza tus tarjetas en carpetas con color e icono propios.</p>
           </div>
-          <button class="btn-action" onclick="openCreateModal()">
-            <i class="fa-solid fa-plus"></i> Nueva Tarjeta
+        </div>
+
+        <!-- Acciones rápidas -->
+        <div class="quick-actions-row">
+          <button class="quick-action-btn primary" onclick="openCreateModal()">
+            <i class="fa-solid fa-plus"></i>
+            <span>Crear</span>
+          </button>
+          <button class="quick-action-btn" onclick="openFolderModal()">
+            <i class="fa-solid fa-folder-plus"></i>
+            <span>Nueva Carpeta</span>
+          </button>
+          <button class="quick-action-btn" onclick="switchView('study')">
+            <i class="fa-solid fa-bullseye"></i>
+            <span>Estudiar</span>
           </button>
         </div>
 
-        <!-- Barra de herramientas y filtros -->
-        <div class="deck-toolbar">
-          <div class="toolbar-left">
-            <label class="select-all-label">
-              <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this.checked)">
-              <span>Marcar todas</span>
-            </label>
+        <!-- Carpetas -->
+        <div class="section-header-row">
+          <h3 class="home-section-title">Tus Carpetas</h3>
+        </div>
+        <div class="folder-tiles-grid" id="folderTilesGrid"></div>
+
+        <!-- Tabla de tarjetas -->
+        <div class="section-header-row" style="margin-top: 34px;">
+          <h3 class="home-section-title" id="cardsGridTitle">Todas las tarjetas</h3>
+        </div>
+
+        <div class="table-toolbar">
+          <div class="table-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="tableSearchInput" placeholder="Buscar por pregunta o respuesta..." oninput="handleSearchInput(this.value)">
           </div>
-          <div class="toolbar-right">
-            <label for="tagFilter" style="font-size:0.9rem; font-weight:700; color:var(--text-muted)">Etiqueta:</label>
+          <div class="table-toolbar-right">
+            <select class="filter-select" id="tableFolderFilter" onchange="handleTableFolderFilter(this.value)">
+              <option value="ALL">Todas las carpetas</option>
+            </select>
             <select class="filter-select" id="tagFilter" onchange="filterCards()">
               <option value="ALL">Todas las etiquetas</option>
+            </select>
+            <select class="filter-select" id="pageSizeSelect" onchange="handlePageSizeChange(this.value)">
+              <option value="10">10 por página</option>
+              <option value="25">25 por página</option>
+              <option value="50">50 por página</option>
+              <option value="100">100 por página</option>
             </select>
           </div>
         </div>
 
-        <!-- Parrilla de tarjetas -->
-        <div class="cards-grid" id="cardsGrid"></div>
+        <div class="cards-table-wrap">
+          <table class="cards-table">
+            <thead>
+              <tr>
+                <th class="col-checkbox"><input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this.checked)"></th>
+                <th class="sortable" data-sort="question" onclick="handleSort('question')">Pregunta <i class="fa-solid fa-sort"></i></th>
+                <th class="sortable" data-sort="folder" onclick="handleSort('folder')">Carpeta <i class="fa-solid fa-sort"></i></th>
+                <th class="sortable" data-sort="createdAt" onclick="handleSort('createdAt')">Fecha creación <i class="fa-solid fa-sort"></i></th>
+                <th class="sortable" data-sort="status" onclick="handleSort('status')">Estado <i class="fa-solid fa-sort"></i></th>
+                <th class="col-actions"></th>
+              </tr>
+            </thead>
+            <tbody id="cardsTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="table-pagination">
+          <span id="paginationInfo">Mostrando 0 de 0</span>
+          <div class="pagination-controls">
+            <button class="round-ctrl-btn" onclick="changePage(-1)" id="pagePrevBtn" aria-label="Página anterior"><i class="fa-solid fa-chevron-left"></i></button>
+            <span id="pageIndicator">Página 1 de 1</span>
+            <button class="round-ctrl-btn" onclick="changePage(1)" id="pageNextBtn" aria-label="Página siguiente"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+        </div>
       </section>
 
       <!-- VISTA 2: CALENDARIO -->
@@ -1745,6 +2040,7 @@
     <span id="bulkSelectedCount">0 tarjetas seleccionadas</span>
     <div class="bulk-action-buttons">
       <button class="danger" onclick="bulkDelete()"><i class="fa-solid fa-trash-can"></i> Eliminar</button>
+      <button onclick="openMoveModal()"><i class="fa-solid fa-arrow-right-arrow-left"></i> Mover</button>
       <button onclick="bulkShare()"><i class="fa-solid fa-share-nodes"></i> Compartir</button>
       <button onclick="bulkPrint()"><i class="fa-solid fa-print"></i> Imprimir</button>
     </div>
@@ -1818,6 +2114,24 @@
       <div class="modal-actions">
         <button class="btn-action secondary" onclick="closeFolderModal()"><i class="fa-solid fa-xmark"></i> Cerrar</button>
         <button class="btn-action" id="folderSubmitBtn" onclick="submitFolderForm()"><i class="fa-solid fa-plus"></i> Crear Carpeta</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: MOVER TARJETAS DE CARPETA -->
+  <div class="modal-backdrop" id="moveModal">
+    <div class="modal-box" style="max-width: 420px;">
+      <h3><i class="fa-solid fa-arrow-right-arrow-left"></i> Mover Tarjetas</h3>
+      <p class="modal-subtitle" id="moveModalSubtitle">Mover 0 tarjetas a...</p>
+      <div class="form-group">
+        <label for="moveTargetFolder">Carpeta destino</label>
+        <select id="moveTargetFolder">
+          <option value="">Sin carpeta</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-action secondary" onclick="closeMoveModal()"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+        <button class="btn-action" onclick="confirmMove()"><i class="fa-solid fa-check"></i> Mover</button>
       </div>
     </div>
   </div>
@@ -1924,7 +2238,8 @@
         answer: "Una representación ligera en memoria del DOM real que optimiza los re-renderizados mediante diffing.",
         folderId: 'f-web',
         tag: "React",
-        selected: false
+        selected: false,
+        createdAt: '2026-08-20'
       },
       {
         id: 2,
@@ -1932,7 +2247,8 @@
         answer: "a² + b² = c² (En todo triángulo rectángulo el cuadrado de la hipotenusa es igual a la suma del cuadrado de los catetos).",
         folderId: 'f-math',
         tag: "Geometría",
-        selected: false
+        selected: false,
+        createdAt: '2026-08-24'
       },
       {
         id: 3,
@@ -1940,7 +2256,8 @@
         answer: "En 1928, descubierta por Alexander Fleming.",
         folderId: 'f-sci',
         tag: "Medicina",
-        selected: false
+        selected: false,
+        createdAt: '2026-08-29'
       },
       {
         id: 4,
@@ -1948,7 +2265,8 @@
         answer: "Canberra (no Sídney, que es la ciudad más poblada pero no la capital).",
         folderId: null,
         tag: "Geografía",
-        selected: false
+        selected: false,
+        createdAt: '2026-09-03'
       }
     ];
 
@@ -1964,9 +2282,13 @@
     let editingEventId = null;
     let calendarViewDate = new Date();
     let currentUserEmail = '';
+    let searchQuery = '';
+    let sortField = 'createdAt';
+    let sortDirection = 'desc';
+    let pageSize = 10;
+    let currentPage = 1;
 
     // Elementos UI
-    const cardsGrid = document.getElementById('cardsGrid');
     const tagFilter = document.getElementById('tagFilter');
     const selectAllCheckbox = document.getElementById('selectAllCheckbox');
     const statTotal = document.getElementById('statTotal');
@@ -2275,12 +2597,94 @@
 
     function setFolderFilter(id) {
       activeFolderId = id;
+      currentPage = 1;
       renderCards();
     }
 
-    // ============ TARJETAS (Mis Tarjetas) ============
-    function renderCards() {
+    // ============ CARPETAS EN CUADRÍCULA (Mis Tarjetas) ============
+    function renderFolderTiles() {
+      const grid = document.getElementById('folderTilesGrid');
+      if (!grid) return;
+
+      const countAll = cards.length;
+      const countNone = cards.filter(c => !c.folderId).length;
+
+      let html = `
+        <div class="folder-tile ${activeFolderId === 'ALL' ? 'active' : ''}" onclick="setFolderFilter('ALL')">
+          <div class="folder-tile-icon-wrap" style="background:#f1f0f5; color:#8a8798;"><i class="fa-solid fa-layer-group"></i></div>
+          <div class="folder-tile-name">Todas</div>
+          <div class="folder-tile-meta">${countAll} tarjeta${countAll === 1 ? '' : 's'}</div>
+        </div>
+      `;
+
+      folders.forEach(f => {
+        const count = cards.filter(c => c.folderId === f.id).length;
+        html += `
+          <div class="folder-tile ${activeFolderId === f.id ? 'active' : ''}" onclick="setFolderFilter('${f.id}')">
+            <button class="icon-btn folder-tile-menu" onclick="event.stopPropagation(); openFolderModalEditing('${f.id}')" title="Editar carpeta"><i class="fa-solid fa-ellipsis"></i></button>
+            <div class="folder-tile-icon-wrap" style="background:${hexToRgba(f.color, 0.16)}; color:${f.color};"><i class="fa-solid fa-${f.icon || 'folder'}"></i></div>
+            <div class="folder-tile-name">${escapeHTML(f.name)}</div>
+            <div class="folder-tile-meta">${count} tarjeta${count === 1 ? '' : 's'}</div>
+          </div>
+        `;
+      });
+
+      html += `
+        <div class="folder-tile ${activeFolderId === 'NONE' ? 'active' : ''}" onclick="setFolderFilter('NONE')">
+          <div class="folder-tile-icon-wrap" style="background:#f1f0f5; color:#b3b0bd;"><i class="fa-solid fa-inbox"></i></div>
+          <div class="folder-tile-name">Sin carpeta</div>
+          <div class="folder-tile-meta">${countNone} tarjeta${countNone === 1 ? '' : 's'}</div>
+        </div>
+      `;
+
+      html += `
+        <button class="folder-tile folder-tile-add" onclick="openFolderModal()">
+          <div class="folder-tile-icon-wrap" style="background:#faf9fc; color:var(--accent-purple); border:1.5px dashed var(--border-subtle);"><i class="fa-solid fa-plus"></i></div>
+          <div class="folder-tile-name">Nueva carpeta</div>
+          <div class="folder-tile-meta">&nbsp;</div>
+        </button>
+      `;
+
+      grid.innerHTML = html;
+    }
+
+    function openFolderModalEditing(id) {
+      openFolderModal();
+      startEditFolder(id);
+    }
+
+    function updateTableFolderFilterOptions() {
+      const dropdown = document.getElementById('tableFolderFilter');
+      if (!dropdown) return;
+      const current = activeFolderId;
+      let html = `<option value="ALL">Todas las carpetas</option>`;
+      folders.forEach(f => {
+        html += `<option value="${f.id}">${escapeHTML(f.name)}</option>`;
+      });
+      html += `<option value="NONE">Sin carpeta</option>`;
+      dropdown.innerHTML = html;
+      dropdown.value = ['ALL', 'NONE', ...folders.map(f => f.id)].includes(current) ? current : 'ALL';
+    }
+
+    function handleTableFolderFilter(value) {
+      setFolderFilter(value);
+    }
+
+    function updateCardsGridTitle() {
+      const titleEl = document.getElementById('cardsGridTitle');
+      if (!titleEl) return;
+      if (activeFolderId === 'ALL') titleEl.textContent = 'Todas las tarjetas';
+      else if (activeFolderId === 'NONE') titleEl.textContent = 'Tarjetas sin carpeta';
+      else {
+        const f = getFolder(activeFolderId);
+        titleEl.textContent = f ? f.name : 'Tarjetas';
+      }
+    }
+
+    // ============ TABLA DE TARJETAS (Mis Tarjetas) ============
+    function getFilteredSortedCards() {
       const selectedTag = tagFilter.value;
+      const q = searchQuery.trim().toLowerCase();
 
       const filtered = cards.filter(card => {
         let folderMatch;
@@ -2289,50 +2693,125 @@
         else folderMatch = card.folderId === activeFolderId;
 
         const tagMatch = selectedTag === 'ALL' || card.tag === selectedTag;
-        return folderMatch && tagMatch;
+        const searchMatch = !q || card.question.toLowerCase().includes(q) || card.answer.toLowerCase().includes(q);
+
+        return folderMatch && tagMatch && searchMatch;
       });
 
-      cardsGrid.innerHTML = '';
+      filtered.sort((a, b) => {
+        let va, vb;
+        if (sortField === 'question') {
+          va = a.question.toLowerCase(); vb = b.question.toLowerCase();
+        } else if (sortField === 'folder') {
+          va = (getFolder(a.folderId) || {}).name || ''; vb = (getFolder(b.folderId) || {}).name || '';
+          va = va.toLowerCase(); vb = vb.toLowerCase();
+        } else if (sortField === 'status') {
+          va = a.selected ? 1 : 0; vb = b.selected ? 1 : 0;
+        } else {
+          va = a.createdAt || ''; vb = b.createdAt || '';
+        }
 
-      if (filtered.length === 0) {
-        cardsGrid.innerHTML = `<div class="empty-state">No hay tarjetas en esta vista todavía.</div>`;
+        if (va < vb) return sortDirection === 'asc' ? -1 : 1;
+        if (va > vb) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+
+      return filtered;
+    }
+
+    function handleSort(field) {
+      if (sortField === field) {
+        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortField = field;
+        sortDirection = 'asc';
+      }
+      currentPage = 1;
+      renderCards();
+    }
+
+    function updateSortIndicators() {
+      document.querySelectorAll('.cards-table th.sortable').forEach(th => {
+        const field = th.dataset.sort;
+        const icon = th.querySelector('i');
+        if (field === sortField) {
+          icon.className = sortDirection === 'asc' ? 'fa-solid fa-sort-up' : 'fa-solid fa-sort-down';
+          th.classList.add('sorted');
+        } else {
+          icon.className = 'fa-solid fa-sort';
+          th.classList.remove('sorted');
+        }
+      });
+    }
+
+    function handleSearchInput(value) {
+      searchQuery = value;
+      currentPage = 1;
+      renderCards();
+    }
+
+    function handlePageSizeChange(value) {
+      pageSize = parseInt(value, 10);
+      currentPage = 1;
+      renderCards();
+    }
+
+    function changePage(delta) {
+      currentPage += delta;
+      renderCards();
+    }
+
+    function renderCards() {
+      const allFiltered = getFilteredSortedCards();
+      const totalItems = allFiltered.length;
+      const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+
+      const startIdx = (currentPage - 1) * pageSize;
+      const pageItems = allFiltered.slice(startIdx, startIdx + pageSize);
+
+      const tbody = document.getElementById('cardsTableBody');
+
+      if (pageItems.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="table-empty">No hay tarjetas que coincidan con la búsqueda o los filtros.</td></tr>`;
+      } else {
+        tbody.innerHTML = pageItems.map(card => {
+          const folder = getFolder(card.folderId);
+          const accentColor = folder ? folder.color : '#cbd5e1';
+          const folderLabel = folder ? folder.name : 'Sin carpeta';
+          const folderIcon = folder ? (folder.icon || 'folder') : 'folder';
+
+          return `
+            <tr class="${card.selected ? 'row-selected' : ''}">
+              <td class="col-checkbox"><input type="checkbox" class="card-checkbox" ${card.selected ? 'checked' : ''} onchange="toggleCardSelect(${card.id}, this.checked)"></td>
+              <td class="col-question">
+                <strong>${escapeHTML(card.question)}</strong>
+                ${card.tag ? `<span class="table-tag"><i class="fa-solid fa-tag"></i> ${escapeHTML(card.tag)}</span>` : ''}
+              </td>
+              <td><span class="tag-badge" style="background:${hexToRgba(accentColor, 0.14)}; color:${accentColor}"><i class="fa-solid fa-${folderIcon}"></i> ${escapeHTML(folderLabel)}</span></td>
+              <td class="col-date">${formatShortDate(card.createdAt || todayStr())}</td>
+              <td>${card.selected ? '<span class="status-pill on">Marcada</span>' : '<span class="status-pill off">Sin marcar</span>'}</td>
+              <td class="col-actions"><button class="icon-btn danger" title="Eliminar" onclick="deleteCard(${card.id})"><i class="fa-solid fa-trash-can"></i></button></td>
+            </tr>
+          `;
+        }).join('');
       }
 
-      filtered.forEach(card => {
-        const folder = getFolder(card.folderId);
-        const accentColor = folder ? folder.color : '#cbd5e1';
-        const folderLabel = folder ? folder.name : 'Sin carpeta';
-        const folderIcon = folder ? (folder.icon || 'folder') : 'folder';
-        const isFilled = !!(folder && folder.style === 'filled');
+      document.getElementById('paginationInfo').textContent = totalItems === 0
+        ? 'Sin resultados'
+        : `Mostrando ${startIdx + 1}-${Math.min(startIdx + pageSize, totalItems)} de ${totalItems}`;
+      document.getElementById('pageIndicator').textContent = `Página ${currentPage} de ${totalPages}`;
+      document.getElementById('pagePrevBtn').disabled = currentPage <= 1;
+      document.getElementById('pageNextBtn').disabled = currentPage >= totalPages;
 
-        const cardEl = document.createElement('div');
-        cardEl.className = `card-item ${card.selected ? 'selected' : ''}`;
-        cardEl.style.borderLeftColor = accentColor;
-        if (isFilled) {
-          cardEl.style.background = hexToRgba(accentColor, 0.1);
-        }
-        cardEl.innerHTML = `
-          <div class="card-top">
-            <input type="checkbox" class="card-checkbox" ${card.selected ? 'checked' : ''} onchange="toggleCardSelect(${card.id}, this.checked)">
-            <div class="meta-tags">
-              <span class="tag-badge" style="background:${hexToRgba(accentColor, isFilled ? 0.24 : 0.14)}; color:${accentColor}"><i class="fa-solid fa-${folderIcon}"></i> ${escapeHTML(folderLabel)}</span>
-              ${card.tag ? `<span class="tag-badge"><i class="fa-solid fa-tag"></i> ${escapeHTML(card.tag)}</span>` : ''}
-            </div>
-          </div>
-          <div class="card-body">
-            <h4>${escapeHTML(card.question)}</h4>
-            <p>${escapeHTML(card.answer)}</p>
-          </div>
-          <div class="card-footer">
-            <button class="btn-delete-card" onclick="deleteCard(${card.id})"><i class="fa-solid fa-trash-can"></i> Eliminar</button>
-          </div>
-        `;
-        cardsGrid.appendChild(cardEl);
-      });
-
+      updateSortIndicators();
       updateStats();
       updateTagFilterOptions();
+      updateTableFolderFilterOptions();
+      updateCardsGridTitle();
       renderFolderSidebar();
+      renderFolderTiles();
     }
 
     function updateStats() {
@@ -2433,6 +2912,34 @@
       printCards(cards.filter(c => c.selected));
     }
 
+    function openMoveModal() {
+      const count = cards.filter(c => c.selected).length;
+      if (count === 0) return;
+      document.getElementById('moveModalSubtitle').textContent = `Mover ${count} tarjeta${count === 1 ? '' : 's'} a...`;
+      const select = document.getElementById('moveTargetFolder');
+      select.innerHTML = `<option value="">Sin carpeta</option>` +
+        folders.map(f => `<option value="${f.id}">${escapeHTML(f.name)}</option>`).join('');
+      document.getElementById('moveModal').classList.add('active');
+    }
+
+    function closeMoveModal() {
+      document.getElementById('moveModal').classList.remove('active');
+    }
+
+    function confirmMove() {
+      const targetFolderId = document.getElementById('moveTargetFolder').value || null;
+      cards.forEach(c => {
+        if (c.selected) {
+          c.folderId = targetFolderId;
+          c.selected = false;
+        }
+      });
+      closeMoveModal();
+      renderCards();
+      renderHome();
+      saveState();
+    }
+
     // ============ MODAL DE CREACIÓN DE TARJETA ============
     function populateFolderSelect() {
       const select = document.getElementById('inputFolder');
@@ -2470,7 +2977,8 @@
         answer: a,
         folderId: folderId,
         tag: tag,
-        selected: false
+        selected: false,
+        createdAt: todayStr()
       });
 
       closeCreateModal();
