@@ -1,0 +1,9 @@
+{
+  "name": "studydeck",
+  "private": true,
+  "version": "1.0.0",
+  "description": "StudyDeck - Flashcards Studio",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}
