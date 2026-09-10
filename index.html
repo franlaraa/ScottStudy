@@ -1075,8 +1075,9 @@
     }
 
     .col-actions {
-      width: 52px;
+      width: 80px;
       text-align: right;
+      white-space: nowrap;
     }
 
     .col-date {
@@ -1198,6 +1199,26 @@
       font-size: 0.85rem;
       padding: 12px 0;
       text-align: center;
+    }
+
+    /* Aviso de error de guardado */
+    .save-error-banner {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+      padding: 10px 18px;
+      border-radius: 30px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      box-shadow: 0 10px 24px rgba(220, 38, 38, 0.15);
+      z-index: 80;
     }
 
     /* Barra de acciones en bloque (aparece al marcar tarjetas) */
@@ -2182,7 +2203,7 @@
         <div class="panel-header">
           <div class="panel-title">
             <h2>Modo Repaso</h2>
-            <p>Pon a prueba tus conocimientos volteando la tarjeta.</p>
+            <p id="studyScopeLabel">Pon a prueba tus conocimientos volteando la tarjeta.</p>
           </div>
         </div>
 
@@ -2233,6 +2254,12 @@
 
     </main>
 
+    <!-- AVISO DE ERROR DE GUARDADO -->
+    <div class="save-error-banner" id="saveErrorBanner" style="display:none;">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <span>No se pudieron guardar los últimos cambios. Comprueba tu conexión.</span>
+    </div>
+
     <!-- BARRA DE ACCIONES EN BLOQUE -->
     <div class="bulk-action-bar" id="bulkActionBar">
       <span id="bulkSelectedCount">0 tarjetas seleccionadas</span>
@@ -2245,10 +2272,10 @@
     </div>
   </div>
 
-  <!-- MODAL: CREAR TARJETA -->
+  <!-- MODAL: CREAR / EDITAR TARJETA -->
   <div class="modal-backdrop" id="createModal">
     <div class="modal-box">
-      <h3><i class="fa-solid fa-layer-group"></i> Crear Nueva Tarjeta</h3>
+      <h3><i class="fa-solid fa-layer-group"></i> <span id="createModalTitle">Crear Nueva Tarjeta</span></h3>
       <div class="form-group">
         <label for="inputQuestion">Pregunta / Anverso</label>
         <textarea id="inputQuestion" rows="2" placeholder="Ej: ¿Qué es una Closure en JavaScript?"></textarea>
@@ -2271,7 +2298,7 @@
       </div>
       <div class="modal-actions">
         <button class="btn-action secondary" onclick="closeCreateModal()"><i class="fa-solid fa-xmark"></i> Cancelar</button>
-        <button class="btn-action" onclick="saveCard()"><i class="fa-solid fa-floppy-disk"></i> Guardar Tarjeta</button>
+        <button class="btn-action" id="cardSubmitBtn" onclick="saveCard()"><i class="fa-solid fa-floppy-disk"></i> Guardar Tarjeta</button>
       </div>
     </div>
   </div>
@@ -2459,10 +2486,35 @@
             Authorization: `Bearer ${authToken}`
           },
           body: JSON.stringify({ folders, cards, events })
+        }).then(res => {
+          if (res.status === 401) {
+            handleSessionExpired();
+          } else if (!res.ok) {
+            showSaveError();
+          }
         }).catch(() => {
-          // Sin conexión al backend de Netlify: los cambios siguen en memoria.
+          showSaveError();
         });
       }, 400);
+    }
+
+    function showSaveError() {
+      const el = document.getElementById('saveErrorBanner');
+      if (!el) return;
+      el.style.display = 'flex';
+      clearTimeout(showSaveError._timeout);
+      showSaveError._timeout = setTimeout(() => { el.style.display = 'none'; }, 6000);
+    }
+
+    function handleSessionExpired() {
+      authToken = null;
+      currentUserEmail = '';
+      clearStoredAuth();
+      document.getElementById('appShell').style.display = 'none';
+      document.getElementById('landingScreen').style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'flex';
+      setAuthMode('login');
+      showLoginError('Tu sesión ha caducado. Vuelve a iniciar sesión (algún cambio reciente podría no haberse guardado).');
     }
 
     // Paletas disponibles para carpetas
@@ -3127,7 +3179,10 @@
               <td><span class="tag-badge" style="background:${hexToRgba(accentColor, 0.14)}; color:${accentColor}"><i class="fa-solid fa-${folderIcon}"></i> ${escapeHTML(folderLabel)}</span></td>
               <td class="col-date">${formatShortDate(card.createdAt || todayStr())}</td>
               <td>${card.selected ? '<span class="status-pill on">Marcada</span>' : '<span class="status-pill off">Sin marcar</span>'}</td>
-              <td class="col-actions"><button class="icon-btn danger" title="Eliminar" onclick="deleteCard(${card.id})"><i class="fa-solid fa-trash-can"></i></button></td>
+              <td class="col-actions">
+                <button class="icon-btn" title="Editar" onclick="openEditModal(${card.id})"><i class="fa-solid fa-pen"></i></button>
+                <button class="icon-btn danger" title="Eliminar" onclick="deleteCard(${card.id})"><i class="fa-solid fa-trash-can"></i></button>
+              </td>
             </tr>
           `;
         }).join('');
@@ -3157,8 +3212,10 @@
       statFolders.textContent = folders.length;
       statSelected.textContent = selected;
 
-      selectAllCheckbox.checked = total > 0 && selected === total;
-      selectAllCheckbox.indeterminate = selected > 0 && selected < total;
+      const visible = getFilteredSortedCards();
+      const visibleSelected = visible.filter(c => c.selected).length;
+      selectAllCheckbox.checked = visible.length > 0 && visibleSelected === visible.length;
+      selectAllCheckbox.indeterminate = visibleSelected > 0 && visibleSelected < visible.length;
 
       updateBulkBar(selected);
     }
@@ -3183,7 +3240,8 @@
     }
 
     function toggleSelectAll(isChecked) {
-      cards.forEach(c => c.selected = isChecked);
+      const visibleIds = new Set(getFilteredSortedCards().map(c => c.id));
+      cards.forEach(c => { if (visibleIds.has(c.id)) c.selected = isChecked; });
       renderCards();
     }
 
@@ -3198,6 +3256,9 @@
     }
 
     function deleteCard(id) {
+      const card = cards.find(c => c.id === id);
+      if (!card) return;
+      if (!confirm('¿Eliminar esta tarjeta? No podrás deshacerlo.')) return;
       cards = cards.filter(c => c.id !== id);
       renderCards();
       renderHome();
@@ -3275,7 +3336,9 @@
       saveState();
     }
 
-    // ============ MODAL DE CREACIÓN DE TARJETA ============
+    // ============ MODAL DE CREACIÓN / EDICIÓN DE TARJETA ============
+    let editingCardId = null;
+
     function populateFolderSelect() {
       const select = document.getElementById('inputFolder');
       select.innerHTML = `<option value="">Sin carpeta</option>` +
@@ -3283,16 +3346,34 @@
     }
 
     function openCreateModal() {
+      editingCardId = null;
       document.getElementById('inputQuestion').value = '';
       document.getElementById('inputAnswer').value = '';
       document.getElementById('inputTag').value = '';
       populateFolderSelect();
       document.getElementById('inputFolder').value = '';
+      document.getElementById('createModalTitle').textContent = 'Crear Nueva Tarjeta';
+      document.getElementById('cardSubmitBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar Tarjeta';
+      document.getElementById('createModal').classList.add('active');
+    }
+
+    function openEditModal(id) {
+      const card = cards.find(c => c.id === id);
+      if (!card) return;
+      editingCardId = id;
+      document.getElementById('inputQuestion').value = card.question;
+      document.getElementById('inputAnswer').value = card.answer;
+      document.getElementById('inputTag').value = card.tag || '';
+      populateFolderSelect();
+      document.getElementById('inputFolder').value = card.folderId || '';
+      document.getElementById('createModalTitle').textContent = 'Editar Tarjeta';
+      document.getElementById('cardSubmitBtn').innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar Cambios';
       document.getElementById('createModal').classList.add('active');
     }
 
     function closeCreateModal() {
       document.getElementById('createModal').classList.remove('active');
+      editingCardId = null;
     }
 
     function saveCard() {
@@ -3306,15 +3387,25 @@
         return;
       }
 
-      cards.push({
-        id: Date.now(),
-        question: q,
-        answer: a,
-        folderId: folderId,
-        tag: tag,
-        selected: false,
-        createdAt: todayStr()
-      });
+      if (editingCardId) {
+        const card = cards.find(c => c.id === editingCardId);
+        if (card) {
+          card.question = q;
+          card.answer = a;
+          card.folderId = folderId;
+          card.tag = tag;
+        }
+      } else {
+        cards.push({
+          id: Date.now(),
+          question: q,
+          answer: a,
+          folderId: folderId,
+          tag: tag,
+          selected: false,
+          createdAt: todayStr()
+        });
+      }
 
       closeCreateModal();
       renderCards();
@@ -3460,11 +3551,36 @@
     }
 
     // ============ MODO ESTUDIAR ============
+    // Repasa siempre dentro del ámbito actual (la misma carpeta activa que
+    // en Mis Tarjetas/Inicio), para que "Estudiar" desde una carpeta no
+    // mezcle el resto del mazo.
+    function getStudyDeck() {
+      if (activeFolderId === 'ALL') return cards;
+      if (activeFolderId === 'NONE') return cards.filter(c => !c.folderId);
+      return cards.filter(c => c.folderId === activeFolderId);
+    }
+
+    function updateStudyScopeLabel(count) {
+      const el = document.getElementById('studyScopeLabel');
+      if (!el) return;
+      let scopeName;
+      if (activeFolderId === 'ALL') scopeName = 'todas tus tarjetas';
+      else if (activeFolderId === 'NONE') scopeName = 'las tarjetas sin carpeta';
+      else {
+        const f = getFolder(activeFolderId);
+        scopeName = f ? `la carpeta "${f.name}"` : 'todas tus tarjetas';
+      }
+      el.textContent = `Repasando ${scopeName} (${count} tarjeta${count === 1 ? '' : 's'}).`;
+    }
+
     function renderStudyCard() {
       const studyCard = document.getElementById('studyCard');
       studyCard.classList.remove('is-flipped');
 
-      if (cards.length === 0) {
+      const deck = getStudyDeck();
+      updateStudyScopeLabel(deck.length);
+
+      if (deck.length === 0) {
         document.getElementById('studyQuestionText').textContent = "No hay tarjetas disponibles";
         document.getElementById('studyAnswerText').textContent = "Crea alguna tarjeta para empezar.";
         document.getElementById('studyProgressText').textContent = "0 / 0";
@@ -3476,7 +3592,7 @@
         return;
       }
 
-      const card = cards[studyIndex];
+      const card = deck[studyIndex];
       const folder = getFolder(card.folderId);
       const accentColor = folder ? folder.color : '#94a3b8';
       const folderLabel = folder ? folder.name : 'Sin carpeta';
@@ -3500,22 +3616,23 @@
       studyCard.style.setProperty('--folder-accent', accentColor);
       document.getElementById('studyProgressBar').style.background = accentColor;
 
-      document.getElementById('studyProgressText').textContent = `${studyIndex + 1} / ${cards.length}`;
-      document.getElementById('studyProgressBar').style.width = `${((studyIndex + 1) / cards.length) * 100}%`;
+      document.getElementById('studyProgressText').textContent = `${studyIndex + 1} / ${deck.length}`;
+      document.getElementById('studyProgressBar').style.width = `${((studyIndex + 1) / deck.length) * 100}%`;
 
       document.getElementById('prevCardBtn').disabled = studyIndex === 0;
-      document.getElementById('nextCardBtn').disabled = studyIndex === cards.length - 1;
+      document.getElementById('nextCardBtn').disabled = studyIndex === deck.length - 1;
     }
 
     function flipStudyCard() {
-      if (cards.length > 0) {
+      if (getStudyDeck().length > 0) {
         document.getElementById('studyCard').classList.toggle('is-flipped');
       }
     }
 
     function nextStudyCard(direction) {
+      const deck = getStudyDeck();
       const target = studyIndex + direction;
-      if (target >= 0 && target < cards.length) {
+      if (target >= 0 && target < deck.length) {
         studyIndex = target;
         renderStudyCard();
       }
