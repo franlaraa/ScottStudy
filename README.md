@@ -27,6 +27,21 @@ Cada carpeta (temario) se crea y edita desde un modal dedicado, donde se elige:
 
 Las tarjetas sin carpeta asignada usan un estilo neutro. Al eliminar una carpeta, sus tarjetas pasan a "Sin carpeta" (no se eliminan).
 
+## Importar en bloque
+
+Desde "Mis Tarjetas" → Importar, se puede pegar una lista de texto y convertirla en carpetas y tarjetas de golpe:
+
+```
+### Nombre de la carpeta
+* Pregunta - Respuesta
+* Otra pregunta - Otra respuesta
+
+### Otra carpeta
+* ...
+```
+
+Cada `### Encabezado` (de `#` a `######`) abre una carpeta — si ya existe una con ese nombre (sin distinguir mayúsculas), reutiliza esa en vez de duplicarla, asignando color/icono automáticamente solo a las nuevas. Cada línea con `*`, `-` o `•` crea una tarjeta dentro de la carpeta activa, partiendo por el primer `" - "` en pregunta/respuesta; las líneas sin ese separador se omiten. Hay una vista previa en vivo con el recuento antes de confirmar.
+
 ## Selección y acciones en bloque
 
 Marcar una o varias tarjetas hace aparecer una barra de acciones: **eliminar**, **mover** (reasignar carpeta), **compartir** (usa la Web Share API si el navegador la soporta, o copia el texto al portapapeles) e **imprimir**. "Marcar todas" y el checkbox de cabecera solo afectan a las tarjetas visibles según los filtros/búsqueda activos, nunca a toda la cuenta.
