@@ -6,7 +6,9 @@ StudyDeck es una Single-Page Application (SPA) para escritorio para la creación
 
 ## Presentación y cuentas
 
-Antes de entrar a la app hay una página de presentación (landing) con una explicación breve del producto y un botón para ir a inicio de sesión / registro. Las cuentas son reales: el correo y la contraseña se validan contra un usuario guardado en Netlify Blobs (contraseña con hash, nunca en texto plano), y cada cuenta tiene sus propias tarjetas, carpetas y eventos, completamente independientes de las demás. La sesión se recuerda en el navegador (localStorage) para no tener que iniciar sesión cada vez.
+Antes de entrar a la app hay una página de presentación (landing) con una explicación breve del producto y un botón para ir a inicio de sesión / registro. Las cuentas son reales: el correo y la contraseña se validan contra un usuario guardado en Netlify Blobs (contraseña con hash, nunca en texto plano), y cada cuenta tiene sus propias tarjetas, carpetas y eventos, completamente independientes de las demás. La sesión se recuerda en el navegador (localStorage) para no tener que iniciar sesión cada vez, y caduca a los 30 días (o antes, si restableces la contraseña).
+
+**Recuperar contraseña**: el enlace "¿Olvidaste tu contraseña?" pide el correo y envía un email (vía Resend) con un enlace de un solo uso, válido 30 minutos, que lleva a `?reset=<token>` y muestra el formulario para elegir una contraseña nueva. Restablecerla cierra cualquier sesión abierta en otros dispositivos. Necesita la variable de entorno `RESEND_API_KEY` en Netlify (ver más abajo); sin ella, la función devuelve un error controlado en vez de fallar en silencio.
 
 ## Arquitectura de vistas (navegación lateral)
 
@@ -27,7 +29,11 @@ Las tarjetas sin carpeta asignada usan un estilo neutro. Al eliminar una carpeta
 
 ## Selección y acciones en bloque
 
-Marcar una o varias tarjetas hace aparecer una barra de acciones con tres opciones: **eliminar**, **compartir** (usa la Web Share API si el navegador la soporta, o copia el texto al portapapeles) e **imprimir**.
+Marcar una o varias tarjetas hace aparecer una barra de acciones: **eliminar**, **mover** (reasignar carpeta), **compartir** (usa la Web Share API si el navegador la soporta, o copia el texto al portapapeles) e **imprimir**. "Marcar todas" y el checkbox de cabecera solo afectan a las tarjetas visibles según los filtros/búsqueda activos, nunca a toda la cuenta.
+
+## Deshacer
+
+Eliminar una tarjeta, una carpeta (junto con la reasignación de sus tarjetas a "Sin carpeta") o un evento no pide confirmación: se elimina al momento y aparece un aviso con un botón "Deshacer" durante unos segundos, que restaura exactamente lo eliminado.
 
 ## Impresión física
 
@@ -57,7 +63,15 @@ o, para producción:
 netlify deploy --prod
 ```
 
-No hace falta configurar nada más: `@netlify/blobs` toma automáticamente las credenciales del sitio cuando la función corre dentro de Netlify (local con `netlify dev`, o ya desplegada).
+`@netlify/blobs` toma automáticamente las credenciales del sitio cuando la función corre dentro de Netlify (local con `netlify dev`, o ya desplegada) — no hace falta configurar nada para tarjetas/carpetas/eventos ni para login/registro.
+
+Para que funcione **recuperar contraseña**, además hay que darle a la función de Netlify una clave de [Resend](https://resend.com) (cuenta gratuita):
+
+```bash
+netlify env:set RESEND_API_KEY tu_clave_de_resend
+```
+
+Opcionalmente, `RESEND_FROM` para usar un remitente distinto al de pruebas (`onboarding@resend.dev`) — requiere verificar un dominio propio en Resend, que es también lo que hace falta para poder enviar a destinatarios que no sean tu propia cuenta de Resend.
 
 ## Uso
 

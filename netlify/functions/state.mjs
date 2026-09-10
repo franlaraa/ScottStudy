@@ -8,7 +8,12 @@ async function getEmailFromRequest(req) {
   if (!token) return null;
   const sessionsStore = getStore('studydeck-sessions');
   const session = await sessionsStore.get(token, { type: 'json' });
-  return session ? session.email : null;
+  if (!session) return null;
+  if (session.expiresAt && Date.now() > session.expiresAt) {
+    await sessionsStore.delete(token);
+    return null;
+  }
+  return session.email;
 }
 
 function json(body, status = 200) {

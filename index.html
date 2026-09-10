@@ -212,6 +212,28 @@
       margin: -4px 0 14px;
     }
 
+    .login-error.info {
+      background: var(--accent-purple-light);
+      color: var(--accent-purple);
+    }
+
+    .login-links {
+      text-align: right;
+      margin: -8px 0 16px;
+      font-size: 0.8rem;
+    }
+
+    .login-links a {
+      color: var(--text-muted);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .login-links a:hover {
+      color: var(--accent-purple);
+      text-decoration: underline;
+    }
+
     .login-hint {
       margin-top: 18px;
       font-size: 0.78rem;
@@ -1221,6 +1243,48 @@
       z-index: 80;
     }
 
+    /* Deshacer última eliminación */
+    .undo-toast {
+      display: none;
+      align-items: center;
+      gap: 14px;
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: var(--text-dark);
+      color: #fff;
+      padding: 12px 14px 12px 20px;
+      border-radius: 40px;
+      box-shadow: 0 16px 36px rgba(66, 64, 64, 0.35);
+      z-index: 70;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .undo-toast button {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 24px;
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .undo-toast button:hover {
+      background: rgba(255, 255, 255, 0.28);
+    }
+
+    .undo-toast-close {
+      padding: 8px !important;
+      background: transparent !important;
+    }
+
     /* Barra de acciones en bloque (aparece al marcar tarjetas) */
     .bulk-action-bar {
       display: none;
@@ -1941,20 +2005,24 @@
       </div>
       <p class="login-subtitle" id="loginSubtitle">Inicia sesión para continuar con tu repaso.</p>
 
-      <div class="login-tabs">
+      <div class="login-tabs" id="loginTabs">
         <button type="button" class="login-tab active" id="loginTabBtn" onclick="setAuthMode('login')">Iniciar sesión</button>
         <button type="button" class="login-tab" id="registerTabBtn" onclick="setAuthMode('register')">Crear cuenta</button>
       </div>
 
       <form id="loginForm" onsubmit="handleAuthSubmit(event)">
-        <div class="form-group">
+        <div class="form-group" id="emailGroup">
           <label for="loginEmail">Correo electrónico</label>
-          <input type="email" id="loginEmail" placeholder="tu@email.com" required>
+          <input type="email" id="loginEmail" placeholder="tu@email.com">
         </div>
-        <div class="form-group">
-          <label for="loginPassword">Contraseña</label>
-          <input type="password" id="loginPassword" placeholder="••••••••" required minlength="6">
+        <div class="form-group" id="passwordGroup">
+          <label for="loginPassword" id="passwordLabel">Contraseña</label>
+          <input type="password" id="loginPassword" placeholder="••••••••">
         </div>
+        <p class="login-links">
+          <a href="#" id="forgotLink" onclick="event.preventDefault(); setAuthMode('forgot')">¿Olvidaste tu contraseña?</a>
+          <a href="#" id="backToLoginLink" onclick="event.preventDefault(); setAuthMode('login')" style="display:none;">Volver a iniciar sesión</a>
+        </p>
         <p class="login-error" id="loginError" style="display:none;"></p>
         <button type="submit" class="btn-action" id="authSubmitBtn" style="width: 100%; justify-content: center; margin-top: 8px;">
           <i class="fa-solid fa-arrow-right-to-bracket"></i> Iniciar sesión
@@ -2260,6 +2328,13 @@
       <span>No se pudieron guardar los últimos cambios. Comprueba tu conexión.</span>
     </div>
 
+    <!-- DESHACER ÚLTIMA ELIMINACIÓN -->
+    <div class="undo-toast" id="undoToast" style="display:none;">
+      <span id="undoToastMessage">Elemento eliminado.</span>
+      <button onclick="performUndo()"><i class="fa-solid fa-rotate-left"></i> Deshacer</button>
+      <button class="undo-toast-close" onclick="hideUndoToast()" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
     <!-- BARRA DE ACCIONES EN BLOQUE -->
     <div class="bulk-action-bar" id="bulkActionBar">
       <span id="bulkSelectedCount">0 tarjetas seleccionadas</span>
@@ -2498,6 +2573,30 @@
       }, 400);
     }
 
+    // Deshacer la última eliminación (tarjeta, carpeta o evento)
+    let lastUndoAction = null;
+    let undoToastTimeout = null;
+
+    function showUndoToast(message, undoFn) {
+      lastUndoAction = undoFn;
+      document.getElementById('undoToastMessage').textContent = message;
+      document.getElementById('undoToast').style.display = 'flex';
+      clearTimeout(undoToastTimeout);
+      undoToastTimeout = setTimeout(hideUndoToast, 8000);
+    }
+
+    function hideUndoToast() {
+      document.getElementById('undoToast').style.display = 'none';
+      lastUndoAction = null;
+      clearTimeout(undoToastTimeout);
+    }
+
+    function performUndo() {
+      const undoFn = lastUndoAction;
+      hideUndoToast();
+      if (undoFn) undoFn();
+    }
+
     function showSaveError() {
       const el = document.getElementById('saveErrorBanner');
       if (!el) return;
@@ -2601,27 +2700,65 @@
       document.getElementById('loginScreen').style.display = 'flex';
     }
 
+    let resetToken = null;
+
+    const AUTH_SUBTITLES = {
+      login: 'Inicia sesión para continuar con tu repaso.',
+      register: 'Crea una cuenta para empezar a guardar tus tarjetas.',
+      forgot: 'Te enviaremos un enlace para elegir una contraseña nueva.',
+      reset: 'Elige tu nueva contraseña.'
+    };
+
+    const AUTH_SUBMIT_LABELS = {
+      login: '<i class="fa-solid fa-arrow-right-to-bracket"></i> Iniciar sesión',
+      register: '<i class="fa-solid fa-user-plus"></i> Crear cuenta',
+      forgot: '<i class="fa-solid fa-paper-plane"></i> Enviar enlace',
+      reset: '<i class="fa-solid fa-key"></i> Guardar contraseña'
+    };
+
     function setAuthMode(mode) {
       authMode = mode;
+
       document.getElementById('loginTabBtn').classList.toggle('active', mode === 'login');
       document.getElementById('registerTabBtn').classList.toggle('active', mode === 'register');
-      document.getElementById('loginSubtitle').textContent = mode === 'login'
-        ? 'Inicia sesión para continuar con tu repaso.'
-        : 'Crea una cuenta para empezar a guardar tus tarjetas.';
-      document.getElementById('authSubmitBtn').innerHTML = mode === 'login'
-        ? '<i class="fa-solid fa-arrow-right-to-bracket"></i> Iniciar sesión'
-        : '<i class="fa-solid fa-user-plus"></i> Crear cuenta';
+      document.getElementById('loginTabs').style.display = (mode === 'login' || mode === 'register') ? 'flex' : 'none';
+
+      document.getElementById('emailGroup').style.display = mode === 'reset' ? 'none' : '';
+      document.getElementById('passwordGroup').style.display = mode === 'forgot' ? 'none' : '';
+      document.getElementById('passwordLabel').textContent = mode === 'reset' ? 'Nueva contraseña' : 'Contraseña';
+      document.getElementById('forgotLink').style.display = mode === 'login' ? '' : 'none';
+      document.getElementById('backToLoginLink').style.display = (mode === 'forgot' || mode === 'reset') ? '' : 'none';
+
+      document.getElementById('loginSubtitle').textContent = AUTH_SUBTITLES[mode] || AUTH_SUBTITLES.login;
+      document.getElementById('authSubmitBtn').innerHTML = AUTH_SUBMIT_LABELS[mode] || AUTH_SUBMIT_LABELS.login;
+
       hideLoginError();
     }
 
-    function showLoginError(msg) {
+    function showLoginError(msg, isInfo) {
       const el = document.getElementById('loginError');
       el.textContent = msg;
+      el.classList.toggle('info', !!isInfo);
       el.style.display = '';
     }
 
     function hideLoginError() {
-      document.getElementById('loginError').style.display = 'none';
+      const el = document.getElementById('loginError');
+      el.style.display = 'none';
+      el.classList.remove('info');
+    }
+
+    function checkResetTokenInURL() {
+      const params = new URLSearchParams(location.search);
+      const token = params.get('reset');
+      if (!token) return false;
+
+      resetToken = token;
+      document.getElementById('landingScreen').style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'flex';
+      setAuthMode('reset');
+      try { history.replaceState(null, '', location.pathname); } catch (err) {}
+      return true;
     }
 
     function resetUIState() {
@@ -2642,9 +2779,50 @@
       const email = document.getElementById('loginEmail').value.trim();
       const password = document.getElementById('loginPassword').value;
       const submitBtn = document.getElementById('authSubmitBtn');
+
+      if (authMode === 'forgot') {
+        if (!email) { showLoginError('Indica tu correo electrónico.'); return; }
+      } else if (authMode === 'reset') {
+        if (!password || password.length < 6) { showLoginError('La contraseña debe tener al menos 6 caracteres.'); return; }
+      } else {
+        if (!email || !password) { showLoginError('Completa correo y contraseña.'); return; }
+        if (authMode === 'register' && password.length < 6) { showLoginError('La contraseña debe tener al menos 6 caracteres.'); return; }
+      }
+
       submitBtn.disabled = true;
 
       try {
+        if (authMode === 'forgot') {
+          const res = await fetch(AUTH_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'request-reset', email })
+          });
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            showLoginError(data.error || 'No se pudo enviar el correo.');
+            return;
+          }
+          showLoginError('Si existe una cuenta con ese correo, te hemos enviado un enlace. Revisa tu bandeja de entrada.', true);
+          return;
+        }
+
+        if (authMode === 'reset') {
+          const res = await fetch(AUTH_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'confirm-reset', token: resetToken, password })
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            showLoginError(data.error || 'No se pudo actualizar la contraseña.');
+            return;
+          }
+          resetToken = null;
+          await completeLogin(data.token, data.email);
+          return;
+        }
+
         const res = await fetch(AUTH_ENDPOINT, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -2687,7 +2865,11 @@
       document.getElementById('landingScreen').style.display = 'none';
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('appShell').style.display = 'flex';
-      switchView('home');
+
+      let lastView = 'home';
+      try { lastView = localStorage.getItem('studydeck_lastView') || 'home'; } catch (err) {}
+      const validViews = ['home', 'deck', 'calendar', 'study'];
+      switchView(validViews.includes(lastView) ? lastView : 'home');
     }
 
     function handleLogout() {
@@ -2709,6 +2891,8 @@
       document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
       document.querySelector(`.nav-btn[data-view="${view}"]`).classList.add('active');
+
+      try { localStorage.setItem('studydeck_lastView', view); } catch (err) {}
 
       if (view === 'home') {
         document.getElementById('viewHome').classList.add('active');
@@ -2938,12 +3122,20 @@
 
     function deleteCurrentEvent() {
       if (!editingEventId) return;
-      if (!confirm('¿Eliminar este evento?')) return;
+      const removed = events.find(e => e.id === editingEventId);
+      if (!removed) return;
       events = events.filter(e => e.id !== editingEventId);
       closeEventModal();
       renderCalendar();
       renderHome();
       saveState();
+
+      showUndoToast('Evento eliminado.', () => {
+        events.push(removed);
+        renderCalendar();
+        renderHome();
+        saveState();
+      });
     }
 
     // ============ BARRA LATERAL DE CARPETAS ============
@@ -3256,24 +3448,36 @@
     }
 
     function deleteCard(id) {
-      const card = cards.find(c => c.id === id);
-      if (!card) return;
-      if (!confirm('¿Eliminar esta tarjeta? No podrás deshacerlo.')) return;
+      const removed = cards.find(c => c.id === id);
+      if (!removed) return;
       cards = cards.filter(c => c.id !== id);
       renderCards();
       renderHome();
       saveState();
+
+      showUndoToast('Tarjeta eliminada.', () => {
+        cards.push(removed);
+        renderCards();
+        renderHome();
+        saveState();
+      });
     }
 
     // ============ ACCIONES EN BLOQUE ============
     function bulkDelete() {
-      const count = cards.filter(c => c.selected).length;
-      if (count === 0) return;
-      if (!confirm(`¿Eliminar ${count} tarjeta${count === 1 ? '' : 's'} seleccionada${count === 1 ? '' : 's'}?`)) return;
+      const removed = cards.filter(c => c.selected).map(c => ({ ...c, selected: false }));
+      if (removed.length === 0) return;
       cards = cards.filter(c => !c.selected);
       renderCards();
       renderHome();
       saveState();
+
+      showUndoToast(`${removed.length} tarjeta${removed.length === 1 ? '' : 's'} eliminada${removed.length === 1 ? '' : 's'}.`, () => {
+        cards.push(...removed);
+        renderCards();
+        renderHome();
+        saveState();
+      });
     }
 
     async function bulkShare() {
@@ -3531,11 +3735,7 @@
     function deleteFolder(id) {
       const folder = getFolder(id);
       if (!folder) return;
-      const affected = cards.filter(c => c.folderId === id).length;
-      const msg = affected > 0
-        ? `Vas a eliminar "${folder.name}". ${affected} tarjeta(s) pasarán a "Sin carpeta". ¿Continuar?`
-        : `¿Eliminar la carpeta "${folder.name}"?`;
-      if (!confirm(msg)) return;
+      const affectedIds = cards.filter(c => c.folderId === id).map(c => c.id);
 
       cards.forEach(c => { if (c.folderId === id) c.folderId = null; });
       folders = folders.filter(f => f.id !== id);
@@ -3548,6 +3748,20 @@
       renderCards();
       renderHome();
       saveState();
+
+      const msg = affectedIds.length > 0
+        ? `Carpeta "${folder.name}" eliminada (${affectedIds.length} tarjeta${affectedIds.length === 1 ? '' : 's'} pasó a "Sin carpeta").`
+        : `Carpeta "${folder.name}" eliminada.`;
+
+      showUndoToast(msg, () => {
+        folders.push(folder);
+        cards.forEach(c => { if (affectedIds.includes(c.id)) c.folderId = id; });
+        renderFolderManageList();
+        populateFolderSelect();
+        renderCards();
+        renderHome();
+        saveState();
+      });
     }
 
     // ============ MODO ESTUDIAR ============
@@ -3679,6 +3893,10 @@
     (async function init() {
       renderColorSwatches();
       renderIconPicker();
+
+      if (checkResetTokenInURL()) {
+        return;
+      }
 
       const { token: savedToken, email: savedEmail } = getStoredAuth();
 
