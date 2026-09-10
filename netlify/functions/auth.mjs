@@ -59,7 +59,9 @@ async function invalidateSessionsForEmail(sessionsStore, email) {
 async function sendResetEmail(email, resetUrl) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    throw new Error('RESEND_API_KEY no configurada');
+    const err = new Error('RESEND_API_KEY no configurada');
+    err.code = 'no_api_key';
+    throw err;
   }
   const fromAddress = process.env.RESEND_FROM || 'StudyDeck <onboarding@resend.dev>';
 
@@ -83,7 +85,11 @@ async function sendResetEmail(email, resetUrl) {
 
   if (!res.ok) {
     const errText = await res.text().catch(() => '');
-    throw new Error(`Resend error ${res.status}: ${errText}`);
+    const err = new Error(`Resend error ${res.status}: ${errText}`);
+    err.code = 'resend_rejected';
+    err.status = res.status;
+    err.detail = errText;
+    throw err;
   }
 }
 
@@ -129,6 +135,10 @@ export default async (req) => {
       try {
         await sendResetEmail(email, resetUrl);
       } catch (err) {
+        console.error('Fallo al enviar email de restablecimiento:', err.code, err.status, err.detail || err.message);
+        if (err.code === 'no_api_key') {
+          return json({ error: 'El envío de correos no está configurado en el servidor (falta RESEND_API_KEY).' }, 502);
+        }
         return json({ error: 'No se pudo enviar el correo de restablecimiento. Inténtalo más tarde.' }, 502);
       }
     }
