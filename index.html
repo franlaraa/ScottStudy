@@ -3360,15 +3360,17 @@
           const accentColor = folder ? folder.color : '#cbd5e1';
           const folderLabel = folder ? folder.name : 'Sin carpeta';
           const folderIcon = folder ? (folder.icon || 'folder') : 'folder';
+          const isFilled = !!(folder && folder.style === 'filled');
+          const rowStyle = isFilled ? ` style="background:${hexToRgba(accentColor, 0.08)}"` : '';
 
           return `
-            <tr class="${card.selected ? 'row-selected' : ''}">
-              <td class="col-checkbox"><input type="checkbox" class="card-checkbox" ${card.selected ? 'checked' : ''} onchange="toggleCardSelect(${card.id}, this.checked)"></td>
+            <tr class="${card.selected ? 'row-selected' : ''}"${rowStyle}>
+              <td class="col-checkbox" style="border-left: 4px solid ${accentColor};"><input type="checkbox" class="card-checkbox" ${card.selected ? 'checked' : ''} onchange="toggleCardSelect(${card.id}, this.checked)"></td>
               <td class="col-question">
                 <strong>${escapeHTML(card.question)}</strong>
                 ${card.tag ? `<span class="table-tag"><i class="fa-solid fa-tag"></i> ${escapeHTML(card.tag)}</span>` : ''}
               </td>
-              <td><span class="tag-badge" style="background:${hexToRgba(accentColor, 0.14)}; color:${accentColor}"><i class="fa-solid fa-${folderIcon}"></i> ${escapeHTML(folderLabel)}</span></td>
+              <td><span class="tag-badge" style="background:${hexToRgba(accentColor, isFilled ? 0.22 : 0.14)}; color:${accentColor}"><i class="fa-solid fa-${folderIcon}"></i> ${escapeHTML(folderLabel)}</span></td>
               <td class="col-date">${formatShortDate(card.createdAt || todayStr())}</td>
               <td>${card.selected ? '<span class="status-pill on">Marcada</span>' : '<span class="status-pill off">Sin marcar</span>'}</td>
               <td class="col-actions">
