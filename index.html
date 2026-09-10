@@ -3535,16 +3535,18 @@
         const folder = getFolder(card.folderId);
         const accentColor = folder ? folder.color : '#64748b';
         const folderLabel = folder ? folder.name : 'Sin carpeta';
+        const isFilled = !!(folder && folder.style === 'filled');
+        const halfStyle = isFilled ? ` style="background:${hexToRgba(accentColor, 0.1)}"` : '';
 
         const unit = document.createElement('div');
         unit.className = 'print-card-unit';
         unit.innerHTML = `
-          <div class="print-half left-question">
+          <div class="print-half left-question"${halfStyle}>
             <div class="print-color-bar" style="background:${accentColor}"></div>
             <div class="print-meta-pill" style="color:${accentColor}">${escapeHTML(folderLabel)}${card.tag ? ' · ' + escapeHTML(card.tag) : ''}</div>
             <div class="print-text">${escapeHTML(card.question)}</div>
           </div>
-          <div class="print-half">
+          <div class="print-half"${halfStyle}>
             <div class="print-color-bar" style="background:${accentColor}"></div>
             <div class="print-meta-pill" style="color:${accentColor}">Respuesta</div>
             <div class="print-text">${escapeHTML(card.answer)}</div>
