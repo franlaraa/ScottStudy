@@ -139,6 +139,9 @@ export default async (req) => {
         if (err.code === 'no_api_key') {
           return json({ error: 'El envío de correos no está configurado en el servidor (falta RESEND_API_KEY).' }, 502);
         }
+        if (err.code === 'resend_rejected' && err.status === 403) {
+          return json({ error: 'Resend (plan gratuito, sin dominio verificado) solo permite enviar al correo con el que te registraste en resend.com. Verifica un dominio en Resend para poder enviar a otras direcciones.' }, 502);
+        }
         return json({ error: 'No se pudo enviar el correo de restablecimiento. Inténtalo más tarde.' }, 502);
       }
     }
