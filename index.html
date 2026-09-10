@@ -1725,6 +1725,17 @@
       color: var(--accent-purple);
     }
 
+    .folder-preview {
+      border-radius: var(--radius-md);
+      padding: 16px;
+      border: 1px solid var(--border-subtle);
+      border-left-width: 4px;
+      background: #faf9fc;
+      display: flex;
+      align-items: center;
+      transition: background 0.15s ease, border-left-color 0.15s ease;
+    }
+
     /* Gestión de carpetas */
     .folder-manage-list {
       max-height: 220px;
@@ -2362,7 +2373,7 @@
       </h4>
       <div class="form-group">
         <label for="newFolderName">Nombre</label>
-        <input type="text" id="newFolderName" placeholder="Ej: Historia, Backend...">
+        <input type="text" id="newFolderName" placeholder="Ej: Historia, Backend..." oninput="updateFolderPreview()">
       </div>
       <div class="form-group">
         <label>Color</label>
@@ -2377,6 +2388,12 @@
         <div class="style-toggle" id="styleToggle">
           <button type="button" class="style-toggle-btn" data-style="outline" onclick="selectFolderStyle('outline')">Solo contorno</button>
           <button type="button" class="style-toggle-btn" data-style="filled" onclick="selectFolderStyle('filled')">Fondo de color</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Vista previa</label>
+        <div class="folder-preview" id="folderPreview">
+          <span class="tag-badge" id="folderPreviewBadge"><i class="fa-solid fa-folder"></i> Nombre de la carpeta</span>
         </div>
       </div>
 
@@ -3522,6 +3539,23 @@
     function selectColorSwatch(color) {
       selectedSwatchColor = color;
       renderColorSwatches();
+      updateFolderPreview();
+    }
+
+    function updateFolderPreview() {
+      const preview = document.getElementById('folderPreview');
+      const badge = document.getElementById('folderPreviewBadge');
+      if (!preview || !badge) return;
+
+      const nameInput = document.getElementById('newFolderName');
+      const name = (nameInput && nameInput.value.trim()) || 'Nombre de la carpeta';
+      const isFilled = selectedFolderStyle === 'filled';
+
+      preview.style.borderLeftColor = selectedSwatchColor;
+      preview.style.background = isFilled ? hexToRgba(selectedSwatchColor, 0.12) : '#faf9fc';
+      badge.innerHTML = `<i class="fa-solid fa-${selectedFolderIcon}"></i> ${escapeHTML(name)}`;
+      badge.style.background = hexToRgba(selectedSwatchColor, isFilled ? 0.22 : 0.14);
+      badge.style.color = selectedSwatchColor;
     }
 
     function renderIconPicker() {
@@ -3534,11 +3568,13 @@
     function selectFolderIcon(ic) {
       selectedFolderIcon = ic;
       renderIconPicker();
+      updateFolderPreview();
     }
 
     function selectFolderStyle(style) {
       selectedFolderStyle = style;
       document.querySelectorAll('.style-toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.style === style));
+      updateFolderPreview();
     }
 
     function renderFolderManageList() {
