@@ -42,6 +42,109 @@
       overflow: hidden;
     }
 
+    /* ============ PRESENTACIÓN / LANDING ============ */
+    .landing-screen {
+      height: 100vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .landing-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 48px;
+    }
+
+    .landing-hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 20px 24px 56px;
+    }
+
+    .landing-hero h1 {
+      font-size: 2.6rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1.15;
+      margin-bottom: 20px;
+      color: var(--text-dark);
+    }
+
+    .landing-hero p {
+      font-size: 1.02rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .landing-hero-actions {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+    }
+
+    .landing-hero-actions .btn-action {
+      padding: 16px 32px;
+      font-size: 1rem;
+    }
+
+    .landing-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 48px 56px;
+    }
+
+    .landing-feature-card {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      padding: 26px 22px;
+      box-shadow: var(--shadow-sm);
+      text-align: left;
+    }
+
+    .landing-feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: var(--accent-purple-light);
+      color: var(--accent-purple);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      margin-bottom: 16px;
+    }
+
+    .landing-feature-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .landing-feature-card p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .landing-footer {
+      display: flex;
+      justify-content: center;
+      padding: 12px 24px 56px;
+    }
+
     /* ============ LOGIN ============ */
     .login-screen {
       min-height: 100vh;
@@ -69,6 +172,44 @@
 
     .login-card .form-group {
       text-align: left;
+    }
+
+    .login-tabs {
+      display: flex;
+      gap: 6px;
+      background: #f4f2fb;
+      padding: 4px;
+      border-radius: 12px;
+      margin-bottom: 22px;
+    }
+
+    .login-tab {
+      flex: 1;
+      padding: 9px;
+      border: none;
+      background: transparent;
+      border-radius: 9px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .login-tab.active {
+      background: #fff;
+      color: var(--accent-purple);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .login-error {
+      background: #fef2f2;
+      color: #dc2626;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      margin: -4px 0 14px;
     }
 
     .login-hint {
@@ -1718,28 +1859,86 @@
 </head>
 <body>
 
+  <!-- PRESENTACIÓN / LANDING -->
+  <div class="landing-screen" id="landingScreen">
+    <header class="landing-header">
+      <div class="brand">
+        <div class="brand-icon"><i class="fa-solid fa-book-open"></i></div>
+        <div class="brand-title">StudyDeck</div>
+      </div>
+      <button class="btn-action secondary" onclick="showLoginScreen()">
+        <i class="fa-solid fa-arrow-right-to-bracket"></i> Iniciar sesión
+      </button>
+    </header>
+
+    <section class="landing-hero">
+      <h1>Organiza tus apuntes.<br>Repasa donde quieras.</h1>
+      <p>StudyDeck es tu estudio de flashcards: crea tarjetas, agrúpalas en carpetas con color e icono propios, ponlas a prueba en modo repaso y planifica tus exámenes y deberes en un calendario. Cada cuenta guarda sus propias tarjetas, carpetas y eventos de forma independiente.</p>
+      <div class="landing-hero-actions">
+        <button class="btn-action" onclick="showLoginScreen()">
+          <i class="fa-solid fa-rocket"></i> Empezar ahora
+        </button>
+      </div>
+    </section>
+
+    <section class="landing-features">
+      <div class="landing-feature-card">
+        <div class="landing-feature-icon"><i class="fa-solid fa-folder"></i></div>
+        <h3>Carpetas a tu manera</h3>
+        <p>Color, icono y estilo propios para reconocer cada temario de un vistazo.</p>
+      </div>
+      <div class="landing-feature-card">
+        <div class="landing-feature-icon"><i class="fa-solid fa-bullseye"></i></div>
+        <h3>Modo repaso</h3>
+        <p>Tarjetas con efecto de volteo 3D: pregunta por un lado, respuesta por el otro.</p>
+      </div>
+      <div class="landing-feature-card">
+        <div class="landing-feature-icon"><i class="fa-solid fa-calendar-days"></i></div>
+        <h3>Calendario integrado</h3>
+        <p>Organiza exámenes, deberes y otros eventos junto a tus tarjetas.</p>
+      </div>
+      <div class="landing-feature-card">
+        <div class="landing-feature-icon"><i class="fa-solid fa-print"></i></div>
+        <h3>Imprime tus tarjetas</h3>
+        <p>Genera una plantilla lista para recortar y estudiar en papel.</p>
+      </div>
+    </section>
+
+    <footer class="landing-footer">
+      <button class="btn-action" onclick="showLoginScreen()">
+        <i class="fa-solid fa-arrow-right-to-bracket"></i> Ir a iniciar sesión
+      </button>
+    </footer>
+  </div>
+
   <!-- LOGIN -->
-  <div class="login-screen" id="loginScreen">
+  <div class="login-screen" id="loginScreen" style="display: none;">
     <div class="login-card">
       <div class="brand" style="justify-content: center; margin-bottom: 22px;">
         <div class="brand-icon"><i class="fa-solid fa-book-open"></i></div>
         <div class="brand-title">StudyDeck</div>
       </div>
-      <p class="login-subtitle">Inicia sesión para continuar con tu repaso.</p>
-      <form id="loginForm" onsubmit="handleLogin(event)">
+      <p class="login-subtitle" id="loginSubtitle">Inicia sesión para continuar con tu repaso.</p>
+
+      <div class="login-tabs">
+        <button type="button" class="login-tab active" id="loginTabBtn" onclick="setAuthMode('login')">Iniciar sesión</button>
+        <button type="button" class="login-tab" id="registerTabBtn" onclick="setAuthMode('register')">Crear cuenta</button>
+      </div>
+
+      <form id="loginForm" onsubmit="handleAuthSubmit(event)">
         <div class="form-group">
           <label for="loginEmail">Correo electrónico</label>
           <input type="email" id="loginEmail" placeholder="tu@email.com" required>
         </div>
         <div class="form-group">
           <label for="loginPassword">Contraseña</label>
-          <input type="password" id="loginPassword" placeholder="••••••••" required>
+          <input type="password" id="loginPassword" placeholder="••••••••" required minlength="6">
         </div>
-        <button type="submit" class="btn-action" style="width: 100%; justify-content: center; margin-top: 8px;">
+        <p class="login-error" id="loginError" style="display:none;"></p>
+        <button type="submit" class="btn-action" id="authSubmitBtn" style="width: 100%; justify-content: center; margin-top: 8px;">
           <i class="fa-solid fa-arrow-right-to-bracket"></i> Iniciar sesión
         </button>
       </form>
-      <p class="login-hint">Demo local sin backend propio: cualquier correo y contraseña te dará acceso. Las tarjetas, carpetas y eventos sí se guardan (ver Netlify Blobs).</p>
     </div>
   </div>
 
@@ -2187,12 +2386,53 @@
     // funcionando normalmente en memoria.
     // ============================================================
     const STATE_ENDPOINT = '/api/state';
+    const AUTH_ENDPOINT = '/api/auth';
     let persistenceAvailable = true;
     let saveStateTimeout = null;
+    let authToken = null;
 
-    async function loadState() {
+    // localStorage puede estar bloqueado (modo privado, contexto sandboxed,
+    // etc.); estas funciones evitan que eso rompa el arranque de la app.
+    function getStoredAuth() {
       try {
-        const res = await fetch(STATE_ENDPOINT);
+        return { token: localStorage.getItem('studydeck_token'), email: localStorage.getItem('studydeck_email') };
+      } catch (err) {
+        return { token: null, email: null };
+      }
+    }
+
+    function setStoredAuth(token, email) {
+      try {
+        localStorage.setItem('studydeck_token', token);
+        localStorage.setItem('studydeck_email', email);
+      } catch (err) {
+        // La sesión sigue activa en esta pestaña; solo no se recordará al recargar.
+      }
+    }
+
+    function clearStoredAuth() {
+      try {
+        localStorage.removeItem('studydeck_token');
+        localStorage.removeItem('studydeck_email');
+      } catch (err) {
+        // Nada que limpiar si no se pudo acceder al storage.
+      }
+    }
+
+    // Devuelve 'ok' | 'unauthorized' | 'network-error' | 'no-token'
+    async function loadState() {
+      if (!authToken) {
+        persistenceAvailable = false;
+        return 'no-token';
+      }
+      try {
+        const res = await fetch(STATE_ENDPOINT, {
+          headers: { Authorization: `Bearer ${authToken}` }
+        });
+        if (res.status === 401) {
+          persistenceAvailable = false;
+          return 'unauthorized';
+        }
         if (!res.ok) throw new Error('state endpoint not available');
         const data = await res.json();
         if (data) {
@@ -2200,18 +2440,24 @@
           if (Array.isArray(data.cards)) cards = data.cards;
           if (Array.isArray(data.events)) events = data.events;
         }
+        persistenceAvailable = true;
+        return 'ok';
       } catch (err) {
         persistenceAvailable = false;
+        return 'network-error';
       }
     }
 
     function saveState() {
-      if (!persistenceAvailable) return;
+      if (!persistenceAvailable || !authToken) return;
       clearTimeout(saveStateTimeout);
       saveStateTimeout = setTimeout(() => {
         fetch(STATE_ENDPOINT, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`
+          },
           body: JSON.stringify({ folders, cards, events })
         }).catch(() => {
           // Sin conexión al backend de Netlify: los cambios siguen en memoria.
@@ -2295,26 +2541,115 @@
     const statFolders = document.getElementById('statFolders');
     const statSelected = document.getElementById('statSelected');
 
-    // LOGIN (demo local, sin backend de autenticación real)
-    function handleLogin(event) {
-      event.preventDefault();
-      const email = document.getElementById('loginEmail').value.trim();
-      currentUserEmail = email;
+    // PRESENTACIÓN / LOGIN / REGISTRO (cuentas reales, contraseñas con hash en el backend)
+    let authMode = 'login';
 
+    function showLoginScreen() {
+      document.getElementById('landingScreen').style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'flex';
+    }
+
+    function setAuthMode(mode) {
+      authMode = mode;
+      document.getElementById('loginTabBtn').classList.toggle('active', mode === 'login');
+      document.getElementById('registerTabBtn').classList.toggle('active', mode === 'register');
+      document.getElementById('loginSubtitle').textContent = mode === 'login'
+        ? 'Inicia sesión para continuar con tu repaso.'
+        : 'Crea una cuenta para empezar a guardar tus tarjetas.';
+      document.getElementById('authSubmitBtn').innerHTML = mode === 'login'
+        ? '<i class="fa-solid fa-arrow-right-to-bracket"></i> Iniciar sesión'
+        : '<i class="fa-solid fa-user-plus"></i> Crear cuenta';
+      hideLoginError();
+    }
+
+    function showLoginError(msg) {
+      const el = document.getElementById('loginError');
+      el.textContent = msg;
+      el.style.display = '';
+    }
+
+    function hideLoginError() {
+      document.getElementById('loginError').style.display = 'none';
+    }
+
+    function resetUIState() {
+      activeFolderId = 'ALL';
+      currentPage = 1;
+      searchQuery = '';
+      sortField = 'createdAt';
+      sortDirection = 'desc';
+      studyIndex = 0;
+      const searchInput = document.getElementById('tableSearchInput');
+      if (searchInput) searchInput.value = '';
+    }
+
+    async function handleAuthSubmit(event) {
+      event.preventDefault();
+      hideLoginError();
+
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const submitBtn = document.getElementById('authSubmitBtn');
+      submitBtn.disabled = true;
+
+      try {
+        const res = await fetch(AUTH_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: authMode, email, password })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          showLoginError(data.error || 'No se pudo completar la operación.');
+          return;
+        }
+
+        await completeLogin(data.token, data.email);
+      } catch (err) {
+        showLoginError('No se pudo conectar con el servidor. ¿Está la app desplegada en Netlify?');
+      } finally {
+        submitBtn.disabled = false;
+      }
+    }
+
+    async function completeLogin(token, email) {
+      authToken = token;
+      currentUserEmail = email;
+      setStoredAuth(token, email);
+      resetUIState();
+      await loadState();
+      showAppForUser(email);
+    }
+
+    function showAppForUser(email) {
       const namePart = email.split('@')[0] || 'Usuario';
       document.getElementById('profileName').textContent = namePart;
       document.getElementById('profileEmail').textContent = email;
       document.getElementById('profileAvatar').textContent = namePart.charAt(0).toUpperCase();
 
+      renderCards();
+      renderHome();
+      renderCalendar();
+
+      document.getElementById('landingScreen').style.display = 'none';
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('appShell').style.display = 'flex';
       switchView('home');
     }
 
     function handleLogout() {
+      if (authToken) {
+        fetch(AUTH_ENDPOINT, { method: 'DELETE', headers: { Authorization: `Bearer ${authToken}` } }).catch(() => {});
+      }
+      authToken = null;
+      currentUserEmail = '';
+      clearStoredAuth();
+      resetUIState();
       document.getElementById('appShell').style.display = 'none';
       document.getElementById('loginScreen').style.display = 'flex';
       document.getElementById('loginForm').reset();
+      setAuthMode('login');
     }
 
     // Cambiar vistas
@@ -3223,9 +3558,28 @@
 
     // Inicio
     (async function init() {
-      await loadState();
       renderColorSwatches();
       renderIconPicker();
+
+      const { token: savedToken, email: savedEmail } = getStoredAuth();
+
+      if (savedToken && savedEmail) {
+        authToken = savedToken;
+        currentUserEmail = savedEmail;
+        const result = await loadState();
+
+        if (result === 'ok') {
+          showAppForUser(savedEmail);
+          return;
+        }
+
+        if (result === 'unauthorized') {
+          clearStoredAuth();
+        }
+        authToken = null;
+        currentUserEmail = '';
+      }
+
       renderCards();
       renderHome();
       renderCalendar();

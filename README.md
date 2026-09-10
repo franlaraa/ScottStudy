@@ -4,6 +4,10 @@ StudyDeck es una Single-Page Application (SPA) para escritorio para la creación
 
 **Objetivo principal:** centralizar el repaso de conceptos mediante una interfaz estilo software de productividad desktop, con carpetas de color/icono propios para diferenciar temarios de un vistazo.
 
+## Presentación y cuentas
+
+Antes de entrar a la app hay una página de presentación (landing) con una explicación breve del producto y un botón para ir a inicio de sesión / registro. Las cuentas son reales: el correo y la contraseña se validan contra un usuario guardado en Netlify Blobs (contraseña con hash, nunca en texto plano), y cada cuenta tiene sus propias tarjetas, carpetas y eventos, completamente independientes de las demás. La sesión se recuerda en el navegador (localStorage) para no tener que iniciar sesión cada vez.
+
 ## Arquitectura de vistas (navegación lateral)
 
 - **Inicio**: dashboard con estadísticas rápidas, accesos directos, la cuadrícula de carpetas y un panel de próximos eventos.
@@ -29,9 +33,14 @@ Marcar una o varias tarjetas hace aparecer una barra de acciones con tres opcion
 
 Integra reglas `@media print` que ocultan toda la UI de la aplicación y generan una plantilla de fichas enfrentadas en horizontal (pregunta a la izquierda y respuesta a la derecha) separadas por una línea de puntos (`dashed`), diseñadas para recortar y doblar por la mitad como flashcard física a doble cara.
 
-## Persistencia con Netlify Blobs
+## Persistencia y autenticación con Netlify Blobs
 
-Las tarjetas, carpetas y eventos se guardan en un Netlify Blob a través de una función serverless (`netlify/functions/state.mjs`, expuesta en `/api/state`). Si la función no está disponible (por ejemplo, al abrir `index.html` directamente como archivo local, sin desplegar en Netlify), la aplicación sigue funcionando con normalidad usando solo el estado en memoria de esa sesión.
+Dos funciones serverless respaldan la app:
+
+- `netlify/functions/auth.mjs` (`/api/auth`): registro e inicio de sesión. Guarda cada usuario (correo + hash de contraseña con `scrypt`) en un store de Blobs y devuelve un token de sesión (también en Blobs) que el cliente reenvía en la cabecera `Authorization`.
+- `netlify/functions/state.mjs` (`/api/state`): lee y guarda las tarjetas/carpetas/eventos del usuario autenticado por ese token, en un documento propio por cada correo — nunca comparte datos entre cuentas.
+
+Si estas funciones no están disponibles (por ejemplo, al abrir `index.html` directamente como archivo local, sin desplegar en Netlify), el inicio de sesión y el registro no funcionarán — la app muestra un aviso claro en vez de fallar en silencio.
 
 Para activar la persistencia:
 
@@ -50,12 +59,8 @@ netlify deploy --prod
 
 No hace falta configurar nada más: `@netlify/blobs` toma automáticamente las credenciales del sitio cuando la función corre dentro de Netlify (local con `netlify dev`, o ya desplegada).
 
-## Aviso sobre el login
-
-La pantalla de inicio de sesión es solo una puerta de entrada de interfaz: acepta cualquier correo y contraseña y no implementa autenticación real. Sirve para el flujo de usuario (mostrar el perfil, poder cerrar sesión), no como control de acceso.
-
 ## Uso
 
-Sin Netlify (solo lectura/prueba en memoria): basta con abrir [`index.html`](index.html) en un navegador.
+Sin Netlify desplegado, la landing y el volteo de tarjetas se pueden ver, pero el registro/login no funcionará (necesitan `/api/auth`).
 
-Con persistencia (recomendado): `npm install` y `netlify dev`, luego abrir la URL local que indique la CLI.
+Con persistencia (recomendado): `npm install` y `netlify dev`, luego abrir la URL local que indique la CLI. Para producción, `netlify deploy --prod`.
