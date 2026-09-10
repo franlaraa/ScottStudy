@@ -52,7 +52,7 @@ Eliminar una tarjeta, una carpeta (junto con la reasignación de sus tarjetas a 
 
 ## Impresión física
 
-Integra reglas `@media print` que ocultan toda la UI de la aplicación y generan una plantilla de fichas enfrentadas en horizontal (pregunta a la izquierda y respuesta a la derecha) separadas por una línea de puntos (`dashed`), diseñadas para recortar y doblar por la mitad como flashcard física a doble cara.
+Integra reglas `@media print` que ocultan toda la UI de la aplicación y generan una plantilla de fichas enfrentadas en horizontal (pregunta a la izquierda y respuesta a la derecha) separadas por una línea de puntos (`dashed`), diseñadas para recortar y doblar por la mitad como flashcard física a doble cara. Antes de imprimir se abre un pequeño diálogo de opciones donde se puede desmarcar "Mostrar el nombre de la carpeta en la tarjeta" para que la ficha impresa no muestre a qué carpeta pertenece.
 
 ## Persistencia y autenticación con Netlify Blobs
 
