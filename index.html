@@ -1736,6 +1736,27 @@
       transition: background 0.15s ease, border-left-color 0.15s ease;
     }
 
+    .import-format-example {
+      background: #f7f6fb;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      white-space: pre-wrap;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .import-preview {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--accent-purple);
+      margin: -8px 0 4px;
+      min-height: 1.2em;
+    }
+
     /* Gestión de carpetas */
     .folder-manage-list {
       max-height: 220px;
@@ -2158,6 +2179,10 @@
             <i class="fa-solid fa-bullseye"></i>
             <span>Estudiar</span>
           </button>
+          <button class="quick-action-btn" onclick="openImportModal()">
+            <i class="fa-solid fa-file-import"></i>
+            <span>Importar</span>
+          </button>
         </div>
 
         <!-- Carpetas -->
@@ -2424,6 +2449,29 @@
       <div class="modal-actions">
         <button class="btn-action secondary" onclick="closeMoveModal()"><i class="fa-solid fa-xmark"></i> Cancelar</button>
         <button class="btn-action" onclick="confirmMove()"><i class="fa-solid fa-check"></i> Mover</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: IMPORTAR TARJETAS -->
+  <div class="modal-backdrop" id="importModal">
+    <div class="modal-box" style="max-width: 640px;">
+      <h3><i class="fa-solid fa-file-import"></i> Importar Tarjetas</h3>
+      <p class="modal-subtitle">Pega una lista de texto y la convertimos en carpetas y tarjetas automáticamente.</p>
+      <pre class="import-format-example">### Nombre de la carpeta
+* Pregunta - Respuesta
+* Otra pregunta - Otra respuesta
+
+### Otra carpeta
+* ...</pre>
+      <div class="form-group">
+        <label for="importTextarea">Texto a importar</label>
+        <textarea id="importTextarea" rows="10" placeholder="### Verbos&#10;* Amo, amas, amare - Amar&#10;* ..." oninput="updateImportPreview()"></textarea>
+      </div>
+      <p class="import-preview" id="importPreview"></p>
+      <div class="modal-actions">
+        <button class="btn-action secondary" onclick="closeImportModal()"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+        <button class="btn-action" onclick="confirmImport()"><i class="fa-solid fa-file-import"></i> Importar</button>
       </div>
     </div>
   </div>
@@ -3532,6 +3580,120 @@
       renderCards();
       renderHome();
       saveState();
+    }
+
+    // ============ IMPORTAR TARJETAS EN BLOQUE ============
+    // Formato: "### Carpeta" abre una carpeta; "* Pregunta - Respuesta"
+    // (o líneas que empiecen por "-"/"•") crea una tarjeta dentro de ella,
+    // partiendo por el primer " - " que encuentre.
+    function parseImportText(text) {
+      const lines = text.split('\n');
+      const items = [];
+      let currentFolder = null;
+
+      lines.forEach(rawLine => {
+        const line = rawLine.trim();
+        if (!line) return;
+
+        const headerMatch = line.match(/^#{1,6}\s*(.+)$/);
+        if (headerMatch) {
+          currentFolder = headerMatch[1].trim();
+          return;
+        }
+
+        const bulletMatch = line.match(/^[*\-•]\s*(.+)$/);
+        if (bulletMatch) {
+          const content = bulletMatch[1].trim();
+          const dashIdx = content.indexOf(' - ');
+          const question = dashIdx === -1 ? content : content.slice(0, dashIdx).trim();
+          const answer = dashIdx === -1 ? '' : content.slice(dashIdx + 3).trim();
+          if (question) {
+            items.push({ folderName: currentFolder, question, answer });
+          }
+        }
+      });
+
+      return items;
+    }
+
+    function openImportModal() {
+      document.getElementById('importTextarea').value = '';
+      document.getElementById('importPreview').textContent = '';
+      document.getElementById('importModal').classList.add('active');
+    }
+
+    function closeImportModal() {
+      document.getElementById('importModal').classList.remove('active');
+    }
+
+    function updateImportPreview() {
+      const text = document.getElementById('importTextarea').value;
+      const preview = document.getElementById('importPreview');
+      if (!text.trim()) {
+        preview.textContent = '';
+        return;
+      }
+      const items = parseImportText(text);
+      const valid = items.filter(i => i.answer);
+      const folderNames = new Set(valid.map(i => i.folderName).filter(Boolean));
+      const skipped = items.length - valid.length;
+      preview.textContent = `Se detectan ${folderNames.size} carpeta${folderNames.size === 1 ? '' : 's'} y ${valid.length} tarjeta${valid.length === 1 ? '' : 's'}.` +
+        (skipped > 0 ? ` (${skipped} línea${skipped === 1 ? '' : 's'} sin "-" se omitirá${skipped === 1 ? '' : 'n'}.)` : '');
+    }
+
+    function confirmImport() {
+      const text = document.getElementById('importTextarea').value;
+      const items = parseImportText(text).filter(i => i.answer);
+
+      if (items.length === 0) {
+        alert('No se ha detectado ninguna tarjeta válida. Revisa el formato ("* Pregunta - Respuesta").');
+        return;
+      }
+
+      const folderNameToId = {};
+      folders.forEach(f => { folderNameToId[f.name.toLowerCase()] = f.id; });
+
+      const baseTs = Date.now();
+      let newFoldersCount = 0;
+      let newCardsCount = 0;
+      let paletteIndex = folders.length;
+
+      items.forEach(item => {
+        let folderId = null;
+        if (item.folderName) {
+          const key = item.folderName.toLowerCase();
+          if (folderNameToId[key]) {
+            folderId = folderNameToId[key];
+          } else {
+            const color = FOLDER_COLOR_PALETTE[paletteIndex % FOLDER_COLOR_PALETTE.length];
+            const icon = FOLDER_ICON_PALETTE[paletteIndex % FOLDER_ICON_PALETTE.length];
+            paletteIndex++;
+            const newFolder = { id: `f${baseTs}-${newFoldersCount}`, name: item.folderName, color, icon, style: 'outline' };
+            folders.push(newFolder);
+            folderNameToId[key] = newFolder.id;
+            folderId = newFolder.id;
+            newFoldersCount++;
+          }
+        }
+
+        cards.push({
+          id: baseTs + newCardsCount,
+          question: item.question,
+          answer: item.answer,
+          folderId: folderId,
+          tag: '',
+          selected: false,
+          createdAt: todayStr()
+        });
+        newCardsCount++;
+      });
+
+      closeImportModal();
+      renderCards();
+      renderHome();
+      saveState();
+
+      alert(`Importación completa: ${newFoldersCount} carpeta${newFoldersCount === 1 ? '' : 's'} nueva${newFoldersCount === 1 ? '' : 's'} y ${newCardsCount} tarjeta${newCardsCount === 1 ? '' : 's'} creada${newCardsCount === 1 ? '' : 's'}.`);
     }
 
     // ============ MODAL DE CARPETAS (color, icono, estilo) ============
