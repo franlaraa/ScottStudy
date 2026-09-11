@@ -1883,35 +1883,43 @@
     }
 
     /* Estas reglas también las usa la vista previa en vivo del modal de
-       impresión (#printPreviewCard), por eso viven fuera de @media print. */
-    .print-card-unit {
-      display: flex;
-      border: 2px dashed #64748b;
-      border-radius: 8px;
-      min-height: 60mm;
-      margin-bottom: 12mm;
-      page-break-inside: avoid;
-      box-sizing: border-box;
+       impresión (#printPreviewQuestion / #printPreviewAnswer), por eso
+       viven fuera de @media print. Preguntas y respuestas se imprimen en
+       hojas separadas, cada tarjeta en la misma casilla de la rejilla en
+       ambas hojas, para poder cuadrarlas al enfrentar los folios. */
+    .print-page-label {
+      font-size: 10pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      margin: 0 0 8mm;
     }
 
-    .print-half {
-      width: 50%;
+    .print-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8mm;
+    }
+
+    .print-answers-page {
+      margin-top: 12mm;
+      break-before: page;
+      page-break-before: always;
+    }
+
+    .print-card-box {
+      border: 2px dashed #64748b;
+      border-radius: 8px;
+      min-height: 55mm;
       padding: 24px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
+      page-break-inside: avoid;
       box-sizing: border-box;
-    }
-
-    .print-half.left-question {
-      border-right: 2px dashed #94a3b8;
-      background: #f8fafc;
-    }
-
-    .hide-divider .print-half.left-question {
-      border-right: none;
     }
 
     .print-color-bar {
@@ -1979,8 +1987,13 @@
       margin-bottom: 24px;
     }
 
-    .print-preview-frame .print-card-unit {
-      margin-bottom: 0;
+    .print-preview-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .print-preview-frame .print-card-box {
       background: #fff;
     }
 
@@ -2541,13 +2554,9 @@
         <input type="checkbox" id="printShowFolderLabel" checked onchange="renderPrintPreview()">
         <span>Mostrar el nombre de la carpeta en la tarjeta</span>
       </label>
-      <label class="select-all-label" style="margin-bottom: 14px;">
-        <input type="checkbox" id="printShowAnswerLabel" checked onchange="renderPrintPreview()">
-        <span>Mostrar la palabra "Respuesta"</span>
-      </label>
       <label class="select-all-label" style="margin-bottom: 20px;">
-        <input type="checkbox" id="printShowDivider" checked onchange="renderPrintPreview()">
-        <span>Mostrar la línea divisoria entre pregunta y respuesta</span>
+        <input type="checkbox" id="printShowAnswerLabel" checked onchange="renderPrintPreview()">
+        <span>Mostrar la palabra "Respuesta" en las tarjetas de respuesta</span>
       </label>
 
       <div class="font-size-stepper-row">
@@ -2560,8 +2569,12 @@
       </div>
 
       <p class="print-preview-label">Vista previa</p>
+      <p class="modal-subtitle" style="margin-top: -12px;">Las preguntas y las respuestas se imprimen en hojas separadas — cada tarjeta en la misma posición en ambas.</p>
       <div class="print-preview-frame">
-        <div class="print-card-unit" id="printPreviewCard"></div>
+        <div class="print-preview-pair">
+          <div class="print-card-box" id="printPreviewQuestion"></div>
+          <div class="print-card-box" id="printPreviewAnswer"></div>
+        </div>
       </div>
 
       <div class="modal-actions">
@@ -3587,7 +3600,6 @@
       document.getElementById('printOptionsSubtitle').textContent = `Vas a imprimir ${list.length} tarjeta${list.length === 1 ? '' : 's'}.`;
       document.getElementById('printShowFolderLabel').checked = true;
       document.getElementById('printShowAnswerLabel').checked = true;
-      document.getElementById('printShowDivider').checked = true;
       document.getElementById('printFontSizeValue').textContent = `${printFontSize}pt`;
       document.getElementById('printOptionsModal').classList.add('active');
       renderPrintPreview();
@@ -3607,18 +3619,26 @@
       return {
         showFolderLabel: document.getElementById('printShowFolderLabel').checked,
         showAnswerLabel: document.getElementById('printShowAnswerLabel').checked,
-        showDivider: document.getElementById('printShowDivider').checked,
         fontSize: printFontSize
       };
     }
 
     function renderPrintPreview() {
-      const preview = document.getElementById('printPreviewCard');
-      if (!preview || pendingPrintList.length === 0) return;
+      const qBox = document.getElementById('printPreviewQuestion');
+      const aBox = document.getElementById('printPreviewAnswer');
+      if (!qBox || !aBox || pendingPrintList.length === 0) return;
       const opts = getPrintOptions();
-      preview.style.setProperty('--print-font-size', `${opts.fontSize}pt`);
-      preview.closest('.print-preview-frame').classList.toggle('hide-divider', !opts.showDivider);
-      preview.innerHTML = buildPrintCardHTML(pendingPrintList[0], opts);
+      const sample = pendingPrintList[0];
+
+      qBox.closest('.print-preview-frame').style.setProperty('--print-font-size', `${opts.fontSize}pt`);
+
+      const question = computeCardVisual(sample, opts, false);
+      qBox.innerHTML = question.innerHTML;
+      qBox.style.background = question.background;
+
+      const answer = computeCardVisual(sample, opts, true);
+      aBox.innerHTML = answer.innerHTML;
+      aBox.style.background = answer.background;
     }
 
     function confirmPrint() {
@@ -4101,31 +4121,39 @@
     }
 
     // ============ IMPRESIÓN ============
-    function buildPrintCardHTML(card, opts) {
+    // Fuente única para el contenido de una tarjeta impresa (sea de
+    // pregunta o de respuesta): la usan tanto la vista previa del modal
+    // (mutando un elemento existente) como la impresión real (montando
+    // HTML nuevo), para que nunca se desincronicen.
+    function computeCardVisual(card, opts, isAnswer) {
       const folder = getFolder(card.folderId);
       const accentColor = folder ? folder.color : '#64748b';
       const folderLabel = folder ? folder.name : 'Sin carpeta';
       const isFilled = !!(folder && folder.style === 'filled');
-      const halfStyle = isFilled ? ` style="background:${hexToRgba(accentColor, 0.1)}"` : '';
-      const folderPillHTML = opts.showFolderLabel
-        ? `<div class="print-meta-pill" style="color:${accentColor}">${escapeHTML(folderLabel)}${card.tag ? ' · ' + escapeHTML(card.tag) : ''}</div>`
-        : '';
-      const answerPillHTML = opts.showAnswerLabel
-        ? `<div class="print-meta-pill" style="color:${accentColor}">Respuesta</div>`
+
+      const labelParts = [];
+      if (opts.showFolderLabel) labelParts.push(escapeHTML(folderLabel) + (card.tag ? ' · ' + escapeHTML(card.tag) : ''));
+      if (isAnswer && opts.showAnswerLabel) labelParts.push('Respuesta');
+      const pillHTML = labelParts.length
+        ? `<div class="print-meta-pill" style="color:${accentColor}">${labelParts.join(' · ')}</div>`
         : '';
 
-      return `
-        <div class="print-half left-question"${halfStyle}>
+      const text = isAnswer ? card.answer : card.question;
+
+      return {
+        background: isFilled ? hexToRgba(accentColor, 0.1) : '',
+        innerHTML: `
           <div class="print-color-bar" style="background:${accentColor}"></div>
-          ${folderPillHTML}
-          <div class="print-text">${escapeHTML(card.question)}</div>
-        </div>
-        <div class="print-half"${halfStyle}>
-          <div class="print-color-bar" style="background:${accentColor}"></div>
-          ${answerPillHTML}
-          <div class="print-text">${escapeHTML(card.answer)}</div>
-        </div>
-      `;
+          ${pillHTML}
+          <div class="print-text">${escapeHTML(text)}</div>
+        `
+      };
+    }
+
+    function buildCardBoxHTML(card, opts, isAnswer) {
+      const { innerHTML, background } = computeCardVisual(card, opts, isAnswer);
+      const styleAttr = background ? ` style="background:${background}"` : '';
+      return `<div class="print-card-box"${styleAttr}>${innerHTML}</div>`;
     }
 
     function printCards(list, opts) {
@@ -4135,16 +4163,19 @@
       }
 
       const printSection = document.getElementById('printSection');
-      printSection.innerHTML = '';
       printSection.style.setProperty('--print-font-size', `${opts.fontSize}pt`);
-      printSection.classList.toggle('hide-divider', !opts.showDivider);
 
-      list.forEach(card => {
-        const unit = document.createElement('div');
-        unit.className = 'print-card-unit';
-        unit.innerHTML = buildPrintCardHTML(card, opts);
-        printSection.appendChild(unit);
-      });
+      const questionsHTML = list.map(card => buildCardBoxHTML(card, opts, false)).join('');
+      const answersHTML = list.map(card => buildCardBoxHTML(card, opts, true)).join('');
+
+      printSection.innerHTML = `
+        <p class="print-page-label">Preguntas</p>
+        <div class="print-grid">${questionsHTML}</div>
+        <div class="print-answers-page">
+          <p class="print-page-label">Respuestas</p>
+          <div class="print-grid">${answersHTML}</div>
+        </div>
+      `;
 
       window.print();
     }
